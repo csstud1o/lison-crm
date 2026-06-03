@@ -29,8 +29,8 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-bold text-gray-800">Boshqaruv paneli</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {cards.map(card => (
-          <div key={card.label} className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100">
+        {cards.map((card, i) => (
+          <div key={card.label} className={`glass-card rounded-2xl p-5 card-3d stagger-${i+1}`}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">{card.label}</p>
@@ -45,9 +45,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-5">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="glass-card rounded-2xl p-6 card-3d">
           <div className="flex items-center gap-3 mb-4">
-            <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-lg shadow-green-500/30">
               <CreditCard size={20} />
             </div>
             <div>
@@ -62,9 +62,9 @@ export default function DashboardPage() {
           <p className="text-xs text-gray-400 mt-2">Taxminiy to&apos;lov rejasiga nisbatan</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="glass-card rounded-2xl p-6 card-3d">
           <div className="flex items-center gap-3 mb-4">
-            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-blue-500/30">
               <TrendingUp size={20} />
             </div>
             <div>
@@ -90,7 +90,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="glass-card rounded-2xl overflow-hidden card-3d">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
           <div className="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-2 rounded-lg">
             <CreditCard size={16} />

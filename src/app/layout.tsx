@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Lison CRM - O\'quv markazi boshqaruv tizimi',
-  description: 'O\'quv markazini boshqarish uchun CRM tizimi: o\'quvchilar, guruhlar, to\'lovlar va davomat',
+  title: 'Lison CRM',
+  description: "O'quv markazi boshqaruv tizimi",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
