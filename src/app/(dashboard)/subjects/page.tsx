@@ -22,9 +22,11 @@ export default function SubjectsPage() {
     e.preventDefault()
     const payload = { name: form.name, description: form.description, monthly_fee: Number(form.monthly_fee) }
     if (editId) {
-      await supabase.from('subjects').update(payload).eq('id', editId)
+      const { error } = await supabase.from('subjects').update(payload).eq('id', editId)
+      if (error) { alert('Xato: ' + error.message); return }
     } else {
-      await supabase.from('subjects').insert(payload)
+      const { error } = await supabase.from('subjects').insert(payload)
+      if (error) { alert('Xato: ' + error.message); return }
     }
     setForm({ name: '', description: '', monthly_fee: '' })
     setEditId(null)
