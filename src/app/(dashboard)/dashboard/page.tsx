@@ -5,7 +5,7 @@ const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','S
 function getStats() {
   const now = new Date()
   return {
-    students: 0, groups: 0, subjects: 5, teachers: 0,
+    students: 0, groups: 0, subjects: 0, teachers: 0,
     monthTotal: 0, presentToday: 0, absentToday: 0, lateToday: 0,
     month: now.getMonth() + 1, year: now.getFullYear(),
   }
