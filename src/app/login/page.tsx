@@ -1,11 +1,15 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Mail, Lock, Loader2, GraduationCap, Sparkles, Zap, ShieldCheck } from 'lucide-react'
 
+const ACCOUNTS: Record<string, { password: string; role: string }> = {
+  admin: { password: 'admin', role: 'superadmin' },
+  lison: { password: 'lison', role: 'reception' },
+}
+
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -15,27 +19,29 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError("Email yoki parol noto'g'ri")
+
+    const acc = ACCOUNTS[login.trim().toLowerCase()]
+    if (!acc || acc.password !== password) {
+      setError("Login yoki parol noto'g'ri")
       setLoading(false)
-    } else {
-      router.push('/dashboard')
-      router.refresh()
+      return
     }
+
+    // Store session in cookie
+    document.cookie = `demo_role=${acc.role}; path=/; max-age=86400`
+    document.cookie = `demo_user=${login}; path=/; max-age=86400`
+    router.push('/dashboard')
+    router.refresh()
   }
 
   return (
     <div className="min-h-screen flex bg-mesh relative overflow-hidden">
-      {/* Floating orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-[10%] w-72 h-72 bg-white/20 rounded-full blur-3xl orb-1" />
         <div className="absolute bottom-20 right-[15%] w-96 h-96 bg-purple-300/20 rounded-full blur-3xl orb-2" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-3xl float-anim" />
       </div>
 
-      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative z-10">
         <div className="text-center text-white px-12 fade-in-scale">
           <div className="w-24 h-24 glass rounded-3xl flex items-center justify-center mx-auto mb-8 float-anim shadow-2xl">
@@ -57,7 +63,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 relative z-10">
         <div className="w-full max-w-md fade-in-up">
           <div className="lg:hidden text-center mb-8">
@@ -75,10 +80,10 @@ export default function LoginPage() {
               <div className="relative group">
                 <Mail size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Login (admin / lison)"
+                  value={login}
+                  onChange={e => setLogin(e.target.value)}
                   required
                   className="w-full bg-white/50 border border-white/60 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/80 transition-all"
                 />
