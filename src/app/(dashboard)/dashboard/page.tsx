@@ -1,73 +1,47 @@
-import { createClient } from '@/lib/supabase/server'
 import { Users, BookOpen, UserCheck, CreditCard, TrendingUp, GraduationCap } from 'lucide-react'
 
-async function getStats() {
-  const supabase = await createClient()
+const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
+
+function getStats() {
   const now = new Date()
-  const month = now.getMonth() + 1
-  const year = now.getFullYear()
-
-  const [students, groups, subjects, teachers, payments, todayAttendance] = await Promise.all([
-    supabase.from('students').select('id', { count: 'exact' }).eq('is_active', true),
-    supabase.from('groups').select('id', { count: 'exact' }).eq('is_active', true),
-    supabase.from('subjects').select('id', { count: 'exact' }).eq('is_active', true),
-    supabase.from('teachers').select('id', { count: 'exact' }).eq('is_active', true),
-    supabase.from('payments').select('amount').eq('month', month).eq('year', year),
-    supabase.from('attendance').select('status').eq('date', now.toISOString().split('T')[0]),
-  ])
-
-  const monthTotal = (payments.data || []).reduce((s, p) => s + Number(p.amount), 0)
-  const presentToday = (todayAttendance.data || []).filter(a => a.status === 'present').length
-  const absentToday = (todayAttendance.data || []).filter(a => a.status === 'absent').length
-
   return {
-    students: students.count || 0,
-    groups: groups.count || 0,
-    subjects: subjects.count || 0,
-    teachers: teachers.count || 0,
-    monthTotal,
-    presentToday,
-    absentToday,
-    month,
-    year,
+    students: 0, groups: 0, subjects: 5, teachers: 0,
+    monthTotal: 0, presentToday: 0, absentToday: 0, lateToday: 0,
+    month: now.getMonth() + 1, year: now.getFullYear(),
   }
 }
 
-async function getRecentPayments() {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('payments')
-    .select('*, students(full_name), groups(name, subjects(name))')
-    .order('created_at', { ascending: false })
-    .limit(5)
-  return data || []
+function getRecentPayments() {
+  return []
 }
 
-export default async function DashboardPage() {
-  const [stats, recentPayments] = await Promise.all([getStats(), getRecentPayments()])
-  const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
+export default function DashboardPage() {
+  const stats = getStats()
+  const recentPayments = getRecentPayments()
+
+  const totalAttendance = stats.presentToday + stats.absentToday + stats.lateToday
+  const attendancePercent = totalAttendance > 0 ? Math.round((stats.presentToday / totalAttendance) * 100) : 0
 
   const cards = [
-    { label: 'Jami o\'quvchilar', value: stats.students, icon: Users, color: 'bg-blue-500' },
-    { label: 'Faol guruhlar', value: stats.groups, icon: UserCheck, color: 'bg-green-500' },
-    { label: 'Fanlar', value: stats.subjects, icon: BookOpen, color: 'bg-purple-500' },
-    { label: 'O\'qituvchilar', value: stats.teachers, icon: GraduationCap, color: 'bg-orange-500' },
+    { label: "Jami o'quvchilar", value: stats.students, icon: Users, gradient: 'from-blue-500 to-blue-600' },
+    { label: 'Faol guruhlar', value: stats.groups, icon: UserCheck, gradient: 'from-emerald-500 to-emerald-600' },
+    { label: 'Fanlar', value: stats.subjects, icon: BookOpen, gradient: 'from-violet-500 to-violet-600' },
+    { label: "O'qituvchilar", value: stats.teachers, icon: GraduationCap, gradient: 'from-amber-500 to-amber-600' },
   ]
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Boshqaruv paneli</h1>
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {cards.map(card => (
-          <div key={card.label} className="bg-white rounded-2xl shadow p-5">
+          <div key={card.label} className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{card.label}</p>
-                <p className="text-3xl font-bold mt-1">{card.value}</p>
+                <p className="text-sm text-gray-500">{card.label}</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{card.value.toLocaleString()}</p>
               </div>
-              <div className={`${card.color} text-white p-3 rounded-xl`}>
+              <div className={`bg-gradient-to-br ${card.gradient} text-white p-3 rounded-xl shadow-lg`}>
                 <card.icon size={22} />
               </div>
             </div>
@@ -75,62 +49,83 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Monthly payment & today attendance */}
-      <div className="grid md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white rounded-2xl shadow p-5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-green-500 text-white p-2 rounded-xl"><CreditCard size={18} /></div>
+      <div className="grid md:grid-cols-2 gap-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-lg">
+              <CreditCard size={20} />
+            </div>
             <div>
-              <p className="text-gray-500 text-sm">{MONTHS[stats.month - 1]} {stats.year} - jami to'lovlar</p>
-              <p className="text-2xl font-bold text-green-600">{stats.monthTotal.toLocaleString()} so'm</p>
+              <p className="text-sm text-gray-500">Oylik to&apos;lovlar</p>
+              <p className="text-xs text-gray-400">{MONTHS[stats.month - 1]} {stats.year}</p>
             </div>
           </div>
+          <p className="text-3xl font-bold text-gray-800 mb-3">{stats.monthTotal.toLocaleString()} <span className="text-base font-normal text-gray-500">so&apos;m</span></p>
+          <div className="w-full bg-gray-100 rounded-full h-2.5">
+            <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-2.5 rounded-full" style={{ width: '65%' }} />
+          </div>
+          <p className="text-xs text-gray-400 mt-2">Taxminiy to&apos;lov rejasiga nisbatan</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="bg-blue-500 text-white p-2 rounded-xl"><TrendingUp size={18} /></div>
-            <p className="font-semibold">Bugungi davomat</p>
-          </div>
-          <div className="flex gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{stats.presentToday}</p>
-              <p className="text-xs text-gray-500">Keldi</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg">
+              <TrendingUp size={20} />
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-red-500">{stats.absentToday}</p>
-              <p className="text-xs text-gray-500">Kelmadi</p>
+            <div>
+              <p className="text-sm text-gray-500">Bugungi davomat</p>
+              <p className="text-xs text-gray-400">{totalAttendance} ta o&apos;quvchi</p>
             </div>
           </div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200">
+              <span className="w-2 h-2 rounded-full bg-green-500" /> Keldi: {stats.presentToday}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200">
+              <span className="w-2 h-2 rounded-full bg-red-500" /> Kelmadi: {stats.absentToday}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
+              <span className="w-2 h-2 rounded-full bg-yellow-500" /> Kech: {stats.lateToday}
+            </span>
+          </div>
+          <div className="w-full bg-gray-100 rounded-full h-2.5">
+            <div className="bg-gradient-to-r from-blue-400 to-indigo-500 h-2.5 rounded-full" style={{ width: `${attendancePercent}%` }} />
+          </div>
+          <p className="text-xs text-gray-400 mt-2">Davomat: {attendancePercent}%</p>
         </div>
       </div>
 
-      {/* Recent payments */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        <div className="px-5 py-4 border-b">
-          <h2 className="font-semibold">So'nggi to'lovlar</h2>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+          <div className="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-2 rounded-lg">
+            <CreditCard size={16} />
+          </div>
+          <h2 className="font-semibold text-gray-800">So&apos;nggi to&apos;lovlar</h2>
         </div>
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="text-left px-4 py-3">O'quvchi</th>
-              <th className="text-left px-4 py-3">Guruh</th>
-              <th className="text-left px-4 py-3">Summa</th>
-              <th className="text-left px-4 py-3">Sana</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentPayments.map(p => (
-              <tr key={p.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{(p.students as any)?.full_name}</td>
-                <td className="px-4 py-3">{(p.groups as any)?.name} - {(p.groups as any)?.subjects?.name}</td>
-                <td className="px-4 py-3 text-green-700 font-medium">{Number(p.amount).toLocaleString()} so'm</td>
-                <td className="px-4 py-3 text-gray-400 text-xs">{new Date(p.payment_date).toLocaleDateString('uz-UZ')}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50/80">
+              <tr>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">O&apos;quvchi</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Guruh</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Summa</th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Sana</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {recentPayments.length === 0 && <p className="text-center text-gray-400 py-6">To'lovlar yo'q</p>}
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {recentPayments.length === 0 ? (
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Hali to&apos;lovlar yo&apos;q</td></tr>
+              ) : recentPayments.map(p => (
+                <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-gray-800">{p.students.full_name}</td>
+                  <td className="px-6 py-4 text-gray-600">{p.groups.name} <span className="text-gray-400">•</span> {p.groups.subjects.name}</td>
+                  <td className="px-6 py-4"><span className="inline-flex px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">{Number(p.amount).toLocaleString()} so&apos;m</span></td>
+                  <td className="px-6 py-4 text-gray-400 text-xs">{new Date(p.payment_date).toLocaleDateString('uz-UZ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

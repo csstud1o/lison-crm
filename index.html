@@ -9,51 +9,118 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-in { animation: fadeIn 0.3s ease-out; }
+
+    /* Framer Motion style animations */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fadeInScale { from { opacity: 0; transform: scale(0.8) rotateX(10deg); } to { opacity: 1; transform: scale(1) rotateX(0); } }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(2deg); } }
+    @keyframes pulse3d { 0%,100% { transform: scale(1) rotateY(0deg); } 50% { transform: scale(1.05) rotateY(5deg); } }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.7) rotateX(20deg) translateY(50px); } to { opacity: 1; transform: scale(1) rotateX(0) translateY(0); } }
+    @keyframes stagger1 { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes stagger2 { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes stagger3 { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes stagger4 { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes orbFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-20px) scale(1.1); } 66% { transform: translate(-20px,15px) scale(0.9); } }
+    @keyframes orbFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-25px,20px) scale(0.95); } 66% { transform: translate(20px,-25px) scale(1.05); } }
+
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+    .fade-in-scale { animation: fadeInScale 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+    .slide-in-left { animation: slideInLeft 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+    .slide-in-right { animation: slideInRight 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+    .float-anim { animation: float 6s ease-in-out infinite; }
+    .modal-in { animation: modalIn 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+    .stagger-1 { animation: stagger1 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
+    .stagger-2 { animation: stagger2 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both; }
+    .stagger-3 { animation: stagger3 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both; }
+    .stagger-4 { animation: stagger4 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both; }
+    .orb-1 { animation: orbFloat1 8s ease-in-out infinite; }
+    .orb-2 { animation: orbFloat2 10s ease-in-out infinite; }
+
+    /* Glassmorphism */
+    .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
+    .glass-white { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); }
+    .glass-dark { background: rgba(15,23,42,0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.08); }
+    .glass-card { background: rgba(255,255,255,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5); }
+
+    /* 3D Effects */
+    .perspective { perspective: 1000px; }
+    .card-3d { transition: all 0.4s cubic-bezier(0.16,1,0.3,1); transform-style: preserve-3d; }
+    .card-3d:hover { transform: translateY(-8px) rotateX(4deg) rotateY(-2deg) scale(1.02); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15), 0 0 30px rgba(99,102,241,0.1); }
+
+    .btn-3d { transition: all 0.3s cubic-bezier(0.16,1,0.3,1); transform-style: preserve-3d; }
+    .btn-3d:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 30px -5px rgba(99,102,241,0.4); }
+    .btn-3d:active { transform: translateY(0) scale(0.98); }
+
+    /* Gradient background */
+    .bg-mesh { background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #667eea 100%); background-size: 400% 400%; animation: gradientShift 15s ease infinite; }
+
     .page { display: none; }
     .page.active { display: block; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 3px; }
+
+    /* Nav hover */
+    .nav-glass { transition: all 0.3s cubic-bezier(0.16,1,0.3,1); }
+    .nav-glass:hover { background: rgba(255,255,255,0.1); transform: translateX(4px); }
+    .nav-glass.active { background: rgba(99,102,241,0.3); border-left: 3px solid #818cf8; }
   </style>
 </head>
-<body class="bg-gray-50 antialiased">
+<body class="bg-slate-100 antialiased">
 
 <!-- LOGIN PAGE -->
-<div id="login-page" class="min-h-screen flex">
-  <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 items-center justify-center relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-      <div class="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-      <div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-300 rounded-full blur-3xl"></div>
-    </div>
-    <div class="relative z-10 text-center text-white px-12">
-      <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8">
-        <i data-lucide="graduation-cap" class="w-10 h-10"></i>
+<div id="login-page" class="min-h-screen flex bg-mesh relative overflow-hidden">
+  <!-- Floating orbs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-[10%] w-72 h-72 bg-white/20 rounded-full blur-3xl orb-1"></div>
+    <div class="absolute bottom-20 right-[15%] w-96 h-96 bg-purple-300/20 rounded-full blur-3xl orb-2"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-3xl float-anim"></div>
+  </div>
+
+  <!-- Left panel -->
+  <div class="hidden lg:flex lg:w-1/2 items-center justify-center relative z-10">
+    <div class="text-center text-white px-12 fade-in-scale">
+      <div class="w-24 h-24 glass rounded-3xl flex items-center justify-center mx-auto mb-8 float-anim shadow-2xl">
+        <i data-lucide="graduation-cap" class="w-12 h-12"></i>
       </div>
-      <h1 class="text-4xl font-bold mb-4">Lison CRM</h1>
-      <p class="text-blue-100 text-lg">O'quv markazi boshqaruv tizimi</p>
+      <h1 class="text-5xl font-extrabold mb-4 drop-shadow-lg">Lison CRM</h1>
+      <p class="text-white/80 text-xl font-light">O'quv markazi boshqaruv tizimi</p>
+      <div class="mt-8 flex justify-center gap-4">
+        <div class="glass rounded-2xl px-5 py-3 text-sm stagger-1 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-yellow-300"></i> Zamonaviy</div>
+        <div class="glass rounded-2xl px-5 py-3 text-sm stagger-2 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-cyan-300"></i> Tezkor</div>
+        <div class="glass rounded-2xl px-5 py-3 text-sm stagger-3 flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-green-300"></i> Xavfsiz</div>
+      </div>
     </div>
   </div>
-  <div class="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 px-6">
-    <div class="w-full max-w-md fade-in">
+
+  <!-- Right panel - login form -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center px-6 relative z-10">
+    <div class="w-full max-w-md fade-in-up">
       <div class="lg:hidden text-center mb-8">
-        <div class="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-          <i data-lucide="graduation-cap" class="w-7 h-7 text-white"></i>
+        <div class="w-16 h-16 glass rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="graduation-cap" class="w-8 h-8 text-white"></i>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900">Lison CRM</h1>
+        <h1 class="text-3xl font-bold text-white">Lison CRM</h1>
       </div>
-      <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8">
+      <div class="glass-card rounded-3xl p-8 shadow-2xl">
         <h2 class="text-2xl font-bold text-gray-900 mb-1">Kirish</h2>
         <p class="text-gray-500 text-sm mb-8">Hisobingizga kiring</p>
         <form id="login-form" class="space-y-5">
-          <div class="relative">
-            <i data-lucide="mail" class="w-[18px] h-[18px] absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input id="login-email" type="text" placeholder="Login" class="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+          <div class="relative group">
+            <i data-lucide="mail" class="w-[18px] h-[18px] absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+            <input id="login-email" type="text" placeholder="Login" class="w-full bg-white/50 border border-white/60 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/80 focus:border-indigo-300 transition-all">
           </div>
-          <div class="relative">
-            <i data-lucide="lock" class="w-[18px] h-[18px] absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input id="login-pass" type="password" placeholder="Parol" class="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+          <div class="relative group">
+            <i data-lucide="lock" class="w-[18px] h-[18px] absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+            <input id="login-pass" type="password" placeholder="Parol" class="w-full bg-white/50 border border-white/60 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/80 focus:border-indigo-300 transition-all">
           </div>
-          <p id="login-error" class="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-lg hidden">Login yoki parol noto'g'ri</p>
-          <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 font-medium text-sm transition-all">Kirish</button>
+          <p id="login-error" class="text-red-500 text-sm bg-red-50/80 backdrop-blur px-4 py-2 rounded-lg hidden">Login yoki parol noto'g'ri</p>
+          <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-medium text-sm btn-3d shadow-lg shadow-indigo-500/30">Kirish</button>
         </form>
       </div>
     </div>
@@ -61,343 +128,271 @@
 </div>
 
 <!-- MAIN APP -->
-<div id="app" class="flex h-screen hidden">
+<div id="app" class="flex h-screen hidden bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 relative">
+  <!-- Background orbs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-10 right-20 w-64 h-64 bg-indigo-200/30 rounded-full blur-3xl orb-1"></div>
+    <div class="absolute bottom-20 left-40 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl orb-2"></div>
+  </div>
+
   <!-- SIDEBAR -->
-  <aside class="w-64 bg-gray-900 text-white flex flex-col relative overflow-hidden shrink-0">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+  <aside class="w-64 glass-dark text-white flex flex-col relative overflow-hidden shrink-0 z-10">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
     <div class="p-5 pb-4">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+      <div class="flex items-center gap-3 slide-in-left">
+        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
           <i data-lucide="graduation-cap" class="w-5 h-5"></i>
         </div>
-        <span class="font-bold text-lg">Lison CRM</span>
+        <span class="font-bold text-lg bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">Lison CRM</span>
       </div>
     </div>
-    <div class="px-5 pb-4 mb-2 border-b border-gray-800">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-300">A</div>
+    <div class="px-5 pb-4 mb-2 border-b border-white/10">
+      <div class="flex items-center gap-3 glass rounded-xl px-3 py-2.5">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-sm font-bold shadow-lg">A</div>
         <div>
-          <p class="text-sm font-medium text-gray-200">Admin User</p>
-          <span class="text-xs text-gray-500">Superadmin</span>
+          <p class="text-sm font-medium text-white/90">Admin User</p>
+          <span class="text-xs text-white/50">Superadmin</span>
         </div>
       </div>
     </div>
-    <nav class="flex-1 px-3 space-y-1 overflow-y-auto" id="nav">
-      <a href="#" data-page="dashboard" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-blue-400 bg-blue-600/20 border-l-[3px] border-blue-400 pl-[9px]">
+    <nav class="flex-1 px-3 space-y-1 overflow-y-auto py-2" id="nav">
+      <a href="#" data-page="dashboard" class="nav-glass nav-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/90">
         <i data-lucide="layout-dashboard" class="w-[18px] h-[18px]"></i> Dashboard
       </a>
-      <a href="#" data-page="students" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all">
+      <a href="#" data-page="students" class="nav-glass nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90">
         <i data-lucide="users" class="w-[18px] h-[18px]"></i> O'quvchilar
       </a>
-      <a href="#" data-page="subjects" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all">
+      <a href="#" data-page="subjects" class="nav-glass nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90">
         <i data-lucide="book-open" class="w-[18px] h-[18px]"></i> Fanlar
       </a>
-      <a href="#" data-page="teachers" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all">
+      <a href="#" data-page="teachers" class="nav-glass nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90">
         <i data-lucide="graduation-cap" class="w-[18px] h-[18px]"></i> O'qituvchilar
       </a>
-      <a href="#" data-page="groups" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all">
+      <a href="#" data-page="groups" class="nav-glass nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90">
         <i data-lucide="user-check" class="w-[18px] h-[18px]"></i> Guruhlar
       </a>
-      <a href="#" data-page="payments" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all">
+      <a href="#" data-page="payments" class="nav-glass nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90">
         <i data-lucide="credit-card" class="w-[18px] h-[18px]"></i> To'lovlar
       </a>
-      <a href="#" data-page="attendance" class="nav-link nav-reception flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all hidden">
+      <a href="#" data-page="attendance" class="nav-glass nav-link nav-reception flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90 hidden">
         <i data-lucide="calendar-check" class="w-[18px] h-[18px]"></i> Davomat
       </a>
-      <a href="#" data-page="users" class="nav-link nav-admin flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all">
+      <a href="#" data-page="users" class="nav-glass nav-link nav-admin flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white/90">
         <i data-lucide="settings" class="w-[18px] h-[18px]"></i> Foydalanuvchilar
       </a>
     </nav>
-    <div class="p-3 border-t border-gray-800">
-      <a href="#" id="logout-btn" class="flex items-center gap-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 text-sm w-full px-3 py-2.5 rounded-lg transition-all">
+    <div class="p-3 border-t border-white/10">
+      <a href="#" id="logout-btn" class="nav-glass flex items-center gap-3 text-white/50 hover:text-red-400 text-sm w-full px-3 py-2.5 rounded-xl">
         <i data-lucide="log-out" class="w-[18px] h-[18px]"></i> Chiqish
       </a>
     </div>
   </aside>
 
   <!-- MAIN CONTENT -->
-  <div class="flex-1 flex flex-col overflow-hidden">
-    <header class="h-14 bg-white border-b border-gray-200 flex items-center px-6 shrink-0">
-      <h2 class="text-sm font-medium text-gray-700" id="page-title">Boshqaruv paneli</h2>
+  <div class="flex-1 flex flex-col overflow-hidden relative z-10">
+    <header class="h-14 glass-white flex items-center justify-between px-6 shrink-0 border-b border-white/30">
+      <h2 class="text-sm font-medium text-gray-700 flex items-center gap-2" id="page-title"><i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i> Boshqaruv paneli</h2>
+      <div class="flex items-center gap-3">
+        <button class="p-2 rounded-xl hover:bg-white/50 text-gray-400 hover:text-indigo-500 transition-all"><i data-lucide="bell" class="w-[18px] h-[18px]"></i></button>
+        <button class="p-2 rounded-xl hover:bg-white/50 text-gray-400 hover:text-indigo-500 transition-all"><i data-lucide="search" class="w-[18px] h-[18px]"></i></button>
+      </div>
     </header>
     <main class="flex-1 overflow-auto p-6" id="main-content">
 
       <!-- DASHBOARD -->
-      <div id="page-dashboard" class="page active fade-in space-y-6">
-        <h1 class="text-2xl font-bold text-gray-800">Boshqaruv paneli</h1>
+      <div id="page-dashboard" class="page active space-y-6 perspective">
+        <h1 class="text-2xl font-bold text-gray-800 fade-in-up">Boshqaruv paneli</h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100">
+          <div class="glass-card rounded-2xl p-5 card-3d stagger-1">
             <div class="flex items-center justify-between">
-              <div><p class="text-sm text-gray-500">Jami o'quvchilar</p><p class="text-3xl font-bold text-gray-800 mt-1">47</p></div>
-              <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-3 rounded-xl shadow-lg"><i data-lucide="users" class="w-[22px] h-[22px]"></i></div>
+              <div><p class="text-sm text-gray-500">Jami o'quvchilar</p><p class="text-3xl font-bold text-gray-800 mt-1">0</p></div>
+              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-blue-500/30"><i data-lucide="users" class="w-[22px] h-[22px]"></i></div>
             </div>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100">
+          <div class="glass-card rounded-2xl p-5 card-3d stagger-2">
             <div class="flex items-center justify-between">
-              <div><p class="text-sm text-gray-500">Faol guruhlar</p><p class="text-3xl font-bold text-gray-800 mt-1">8</p></div>
-              <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-3 rounded-xl shadow-lg"><i data-lucide="user-check" class="w-[22px] h-[22px]"></i></div>
+              <div><p class="text-sm text-gray-500">Faol guruhlar</p><p class="text-3xl font-bold text-gray-800 mt-1">0</p></div>
+              <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-3 rounded-xl shadow-lg shadow-emerald-500/30"><i data-lucide="user-check" class="w-[22px] h-[22px]"></i></div>
             </div>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100">
+          <div class="glass-card rounded-2xl p-5 card-3d stagger-3">
             <div class="flex items-center justify-between">
-              <div><p class="text-sm text-gray-500">Fanlar</p><p class="text-3xl font-bold text-gray-800 mt-1">5</p></div>
-              <div class="bg-gradient-to-br from-violet-500 to-violet-600 text-white p-3 rounded-xl shadow-lg"><i data-lucide="book-open" class="w-[22px] h-[22px]"></i></div>
+              <div><p class="text-sm text-gray-500">Fanlar</p><p class="text-3xl font-bold text-gray-800 mt-1">0</p></div>
+              <div class="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-3 rounded-xl shadow-lg shadow-violet-500/30"><i data-lucide="book-open" class="w-[22px] h-[22px]"></i></div>
             </div>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 border border-gray-100">
+          <div class="glass-card rounded-2xl p-5 card-3d stagger-4">
             <div class="flex items-center justify-between">
-              <div><p class="text-sm text-gray-500">O'qituvchilar</p><p class="text-3xl font-bold text-gray-800 mt-1">6</p></div>
-              <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-3 rounded-xl shadow-lg"><i data-lucide="graduation-cap" class="w-[22px] h-[22px]"></i></div>
+              <div><p class="text-sm text-gray-500">O'qituvchilar</p><p class="text-3xl font-bold text-gray-800 mt-1">0</p></div>
+              <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-3 rounded-xl shadow-lg shadow-amber-500/30"><i data-lucide="graduation-cap" class="w-[22px] h-[22px]"></i></div>
             </div>
           </div>
         </div>
+
         <div class="grid md:grid-cols-2 gap-5">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="glass-card rounded-2xl p-6 card-3d">
             <div class="flex items-center gap-3 mb-4">
-              <div class="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-lg"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
-              <div><p class="text-sm text-gray-500">Oylik to'lovlar</p><p class="text-xs text-gray-400">Iyun 2026</p></div>
+              <div class="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-2.5 rounded-xl shadow-lg shadow-green-500/30"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+              <div><p class="text-sm text-gray-500">Oylik to'lovlar</p><p class="text-xs text-gray-400">2026</p></div>
             </div>
-            <p class="text-3xl font-bold text-gray-800 mb-3">23,500,000 <span class="text-base font-normal text-gray-500">so'm</span></p>
-            <div class="w-full bg-gray-100 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-400 to-emerald-500 h-2.5 rounded-full" style="width:65%"></div></div>
+            <p class="text-3xl font-bold text-gray-800 mb-3">0 <span class="text-base font-normal text-gray-500">so'm</span></p>
+            <div class="w-full bg-gray-200/50 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-400 to-emerald-500 h-2.5 rounded-full" style="width:0%"></div></div>
             <p class="text-xs text-gray-400 mt-2">Taxminiy to'lov rejasiga nisbatan</p>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="glass-card rounded-2xl p-6 card-3d">
             <div class="flex items-center gap-3 mb-4">
-              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
-              <div><p class="text-sm text-gray-500">Bugungi davomat</p><p class="text-xs text-gray-400">40 ta o'quvchi</p></div>
+              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg shadow-blue-500/30"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+              <div><p class="text-sm text-gray-500">Bugungi davomat</p><p class="text-xs text-gray-400">0 ta o'quvchi</p></div>
             </div>
             <div class="flex items-center gap-3 mb-4">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200"><span class="w-2 h-2 rounded-full bg-green-500"></span>Keldi: 32</span>
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200"><span class="w-2 h-2 rounded-full bg-red-500"></span>Kelmadi: 5</span>
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-50 text-yellow-700 border border-yellow-200"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>Kech: 3</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-green-50/80 text-green-700 border border-green-200/50 backdrop-blur"><span class="w-2 h-2 rounded-full bg-green-500"></span>Keldi: 0</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50/80 text-red-700 border border-red-200/50 backdrop-blur"><span class="w-2 h-2 rounded-full bg-red-500"></span>Kelmadi: 0</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-50/80 text-yellow-700 border border-yellow-200/50 backdrop-blur"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>Kech: 0</span>
             </div>
-            <div class="w-full bg-gray-100 rounded-full h-2.5"><div class="bg-gradient-to-r from-blue-400 to-indigo-500 h-2.5 rounded-full" style="width:80%"></div></div>
-            <p class="text-xs text-gray-400 mt-2">Davomat: 80%</p>
+            <div class="w-full bg-gray-200/50 rounded-full h-2.5"><div class="bg-gradient-to-r from-blue-400 to-indigo-500 h-2.5 rounded-full" style="width:0%"></div></div>
+            <p class="text-xs text-gray-400 mt-2">Davomat: 0%</p>
           </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-            <div class="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-2 rounded-lg"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+
+        <div class="glass-card rounded-2xl overflow-hidden card-3d">
+          <div class="px-6 py-4 border-b border-white/30 flex items-center gap-3">
+            <div class="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-2 rounded-lg shadow-lg shadow-violet-500/30"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
             <h2 class="font-semibold text-gray-800">So'nggi to'lovlar</h2>
           </div>
           <table class="w-full text-sm">
-            <thead class="bg-gray-50/80"><tr>
+            <thead class="bg-white/30"><tr>
               <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">O'quvchi</th>
               <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Guruh</th>
               <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Summa</th>
               <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Sana</th>
             </tr></thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr class="hover:bg-gray-50/50"><td class="px-6 py-4 font-medium text-gray-800">Aliyev Jasur</td><td class="px-6 py-4 text-gray-600">A1 • Ingliz tili</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">500,000 so'm</span></td><td class="px-6 py-4 text-gray-400 text-xs">02.06.2026</td></tr>
-              <tr class="hover:bg-gray-50/50"><td class="px-6 py-4 font-medium text-gray-800">Karimova Madina</td><td class="px-6 py-4 text-gray-600">B2 • Arab tili</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">450,000 so'm</span></td><td class="px-6 py-4 text-gray-400 text-xs">01.06.2026</td></tr>
-              <tr class="hover:bg-gray-50/50"><td class="px-6 py-4 font-medium text-gray-800">Xasanov Bobur</td><td class="px-6 py-4 text-gray-600">C1 • Kores tili</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">550,000 so'm</span></td><td class="px-6 py-4 text-gray-400 text-xs">31.05.2026</td></tr>
-              <tr class="hover:bg-gray-50/50"><td class="px-6 py-4 font-medium text-gray-800">Toshmatova Nilufar</td><td class="px-6 py-4 text-gray-600">A2 • Ingliz tili</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">500,000 so'm</span></td><td class="px-6 py-4 text-gray-400 text-xs">30.05.2026</td></tr>
-              <tr class="hover:bg-gray-50/50"><td class="px-6 py-4 font-medium text-gray-800">Rahimov Sardor</td><td class="px-6 py-4 text-gray-600">D1 • Kompyuter</td><td class="px-6 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">400,000 so'm</span></td><td class="px-6 py-4 text-gray-400 text-xs">29.05.2026</td></tr>
-            </tbody>
+            <tbody><tr><td colspan="4" class="px-6 py-8 text-center text-gray-400"><div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-violet-100/50 to-purple-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="wallet" class="w-7 h-7 text-violet-300"></i></div><p class="font-medium">Hali to'lovlar yo'q</p></td></tr></tbody>
           </table>
         </div>
       </div>
 
       <!-- STUDENTS -->
-      <div id="page-students" class="page fade-in">
-        <div class="flex items-center justify-between mb-8">
+      <div id="page-students" class="page perspective">
+        <div class="flex items-center justify-between mb-8 fade-in-up">
           <div class="flex items-center gap-3">
-            <div class="p-2.5 bg-blue-50 rounded-xl"><i data-lucide="users" class="w-[22px] h-[22px] text-blue-600"></i></div>
-            <div><h1 class="text-2xl font-bold text-gray-900">O'quvchilar</h1><p class="text-sm text-gray-500">47 ta o'quvchi</p></div>
+            <div class="p-2.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 backdrop-blur rounded-xl border border-blue-200/30"><i data-lucide="users" class="w-[22px] h-[22px] text-blue-600"></i></div>
+            <div><h1 class="text-2xl font-bold text-gray-900">O'quvchilar</h1><p class="text-sm text-gray-500">0 ta o'quvchi</p></div>
           </div>
-          <button class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="user-plus" class="w-[18px] h-[18px]"></i> Yangi o'quvchi</button>
+          <button onclick="openModal('student')" class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl btn-3d shadow-lg shadow-blue-500/30"><i data-lucide="user-plus" class="w-[18px] h-[18px]"></i> Yangi o'quvchi</button>
         </div>
-        <div class="relative mb-4"><i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i><input placeholder="Ism yoki telefon bo'yicha qidirish..." class="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="relative mb-4"><i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i><input placeholder="Ism yoki telefon bo'yicha qidirish..." class="w-full glass-white rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border-0"></div>
+        <div class="glass-card rounded-2xl overflow-hidden">
           <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50/80 border-b border-gray-100"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">F.I.Sh.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefon</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Ota-ona tel.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sana</th><th class="px-5 py-3.5"></th></tr></thead>
-            <tbody class="divide-y divide-gray-50">
-            </tbody>
+            <thead><tr class="bg-white/30 border-b border-white/20"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">F.I.Sh.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefon</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Ota-ona tel.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sana</th><th class="px-5 py-3.5"></th></tr></thead>
+            <tbody></tbody>
           </table>
-          <div class="text-center py-12 text-gray-400"><i data-lucide="users" class="w-10 h-10 mx-auto mb-3 opacity-50"></i><p>Hali o'quvchilar yo'q</p></div>
+          <div class="text-center py-12 text-gray-400"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-100/50 to-indigo-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="user-plus" class="w-8 h-8 text-blue-300"></i></div><p class="font-medium">Hali o'quvchilar yo'q</p><p class="text-sm mt-1 text-gray-300">Yangi o'quvchi qo'shish tugmasini bosing</p></div>
         </div>
       </div>
 
       <!-- SUBJECTS -->
-      <div id="page-subjects" class="page fade-in">
-        <div class="flex items-center justify-between mb-8">
+      <div id="page-subjects" class="page perspective">
+        <div class="flex items-center justify-between mb-8 fade-in-up">
           <div class="flex items-center gap-3">
-            <div class="p-2.5 bg-blue-50 rounded-xl"><i data-lucide="book-open" class="w-[22px] h-[22px] text-blue-600"></i></div>
-            <div><h1 class="text-2xl font-bold text-gray-900">Fanlar</h1><p class="text-sm text-gray-500">5 ta fan</p></div>
+            <div class="p-2.5 bg-gradient-to-br from-violet-500/20 to-purple-500/20 backdrop-blur rounded-xl border border-violet-200/30"><i data-lucide="book-open" class="w-[22px] h-[22px] text-violet-600"></i></div>
+            <div><h1 class="text-2xl font-bold text-gray-900">Fanlar</h1><p class="text-sm text-gray-500">0 ta fan</p></div>
           </div>
-          <button class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Fan qo'shish</button>
+          <button onclick="openModal('subject')" class="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 py-2.5 rounded-xl btn-3d shadow-lg shadow-violet-500/30"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Fan qo'shish</button>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
           <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50/80 border-b border-gray-100"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Fan nomi</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Tavsif</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Oylik to'lov</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Holat</th><th class="px-5 py-3.5"></th></tr></thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Ingliz tili</td><td class="px-5 py-4 text-gray-500">General English kursi</td><td class="px-5 py-4 font-medium">500,000 <span class="text-gray-400 font-normal">so'm</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Arab tili</td><td class="px-5 py-4 text-gray-500">Asosiy kurs</td><td class="px-5 py-4 font-medium">450,000 <span class="text-gray-400 font-normal">so'm</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Yapon tili</td><td class="px-5 py-4 text-gray-500">N5-N3 darajalar</td><td class="px-5 py-4 font-medium">600,000 <span class="text-gray-400 font-normal">so'm</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Kores tili</td><td class="px-5 py-4 text-gray-500">TOPIK tayyorlov</td><td class="px-5 py-4 font-medium">550,000 <span class="text-gray-400 font-normal">so'm</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Kompyuter savodxonligi</td><td class="px-5 py-4 text-gray-500">Office dasturlari</td><td class="px-5 py-4 font-medium">400,000 <span class="text-gray-400 font-normal">so'm</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
-            </tbody>
+            <thead><tr class="bg-white/30 border-b border-white/20"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Fan nomi</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Tavsif</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Oylik to'lov</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Holat</th><th class="px-5 py-3.5"></th></tr></thead>
+            <tbody></tbody>
           </table>
+          <div class="text-center py-12 text-gray-400"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-violet-100/50 to-purple-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="book-marked" class="w-8 h-8 text-violet-300"></i></div><p class="font-medium">Hali fanlar yo'q</p><p class="text-sm mt-1 text-gray-300">Fan qo'shish tugmasini bosing</p></div>
         </div>
       </div>
 
       <!-- TEACHERS -->
-      <div id="page-teachers" class="page fade-in">
-        <div class="flex items-center justify-between mb-8">
+      <div id="page-teachers" class="page perspective">
+        <div class="flex items-center justify-between mb-8 fade-in-up">
           <div class="flex items-center gap-3">
-            <div class="p-2.5 bg-purple-50 rounded-xl"><i data-lucide="graduation-cap" class="w-[22px] h-[22px] text-purple-600"></i></div>
-            <div><h1 class="text-2xl font-bold text-gray-900">O'qituvchilar</h1><p class="text-sm text-gray-500">6 ta o'qituvchi</p></div>
+            <div class="p-2.5 bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur rounded-xl border border-purple-200/30"><i data-lucide="graduation-cap" class="w-[22px] h-[22px] text-purple-600"></i></div>
+            <div><h1 class="text-2xl font-bold text-gray-900">O'qituvchilar</h1><p class="text-sm text-gray-500">0 ta o'qituvchi</p></div>
           </div>
-          <button class="flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-xl hover:bg-purple-700 transition-colors shadow-sm"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Qo'shish</button>
+          <button onclick="openModal('teacher')" class="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2.5 rounded-xl btn-3d shadow-lg shadow-purple-500/30"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Qo'shish</button>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
           <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50/80 border-b border-gray-100"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">F.I.Sh.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefon</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Fan</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Holat</th><th class="px-5 py-3.5"></th></tr></thead>
-            <tbody class="divide-y divide-gray-50">
-            </tbody>
+            <thead><tr class="bg-white/30 border-b border-white/20"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">F.I.Sh.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefon</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Fan</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Holat</th><th class="px-5 py-3.5"></th></tr></thead>
+            <tbody></tbody>
           </table>
-          <div class="text-center py-12 text-gray-400"><i data-lucide="graduation-cap" class="w-10 h-10 mx-auto mb-3 opacity-50"></i><p>Hali o'qituvchilar yo'q</p></div>
+          <div class="text-center py-12 text-gray-400"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-100/50 to-pink-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="user-round-plus" class="w-8 h-8 text-purple-300"></i></div><p class="font-medium">Hali o'qituvchilar yo'q</p><p class="text-sm mt-1 text-gray-300">O'qituvchi qo'shish tugmasini bosing</p></div>
         </div>
       </div>
 
       <!-- GROUPS -->
-      <div id="page-groups" class="page fade-in">
-        <div class="flex items-center justify-between mb-8">
+      <div id="page-groups" class="page perspective">
+        <div class="flex items-center justify-between mb-8 fade-in-up">
           <div class="flex items-center gap-3">
-            <div class="p-2.5 bg-indigo-50 rounded-xl"><i data-lucide="user-check" class="w-[22px] h-[22px] text-indigo-600"></i></div>
-            <div><h1 class="text-2xl font-bold text-gray-900">Guruhlar</h1><p class="text-sm text-gray-500">8 ta guruh</p></div>
+            <div class="p-2.5 bg-gradient-to-br from-indigo-500/20 to-blue-500/20 backdrop-blur rounded-xl border border-indigo-200/30"><i data-lucide="user-check" class="w-[22px] h-[22px] text-indigo-600"></i></div>
+            <div><h1 class="text-2xl font-bold text-gray-900">Guruhlar</h1><p class="text-sm text-gray-500">0 ta guruh</p></div>
           </div>
-          <button class="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Guruh qo'shish</button>
+          <button onclick="openModal('group')" class="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2.5 rounded-xl btn-3d shadow-lg shadow-indigo-500/30"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Guruh qo'shish</button>
         </div>
         <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all">
-            <div class="flex items-start justify-between mb-4"><div><h3 class="font-bold text-lg text-gray-900">A1</h3><span class="inline-flex px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium mt-1">Ingliz tili</span></div><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></div>
-            <div class="space-y-2 text-sm text-gray-600 mb-4"><div><span class="text-gray-400">O'qituvchi:</span> <span class="font-medium text-gray-800">Nazarova Aziza</span></div><div><span class="text-gray-400">Dars vaqti:</span> <span class="font-medium text-gray-800">Du,Cho,Ju 09:00-11:00</span></div></div>
-            <div class="mb-4"><div class="flex justify-between text-xs mb-1.5"><span class="text-gray-500">O'quvchilar</span><span class="font-semibold text-gray-700">8 / 15</span></div><div class="w-full h-2 bg-gray-100 rounded-full"><div class="h-full rounded-full bg-indigo-500" style="width:53%"></div></div></div>
-            <button class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Tahrirlash</button>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all">
-            <div class="flex items-start justify-between mb-4"><div><h3 class="font-bold text-lg text-gray-900">A2</h3><span class="inline-flex px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium mt-1">Ingliz tili</span></div><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></div>
-            <div class="space-y-2 text-sm text-gray-600 mb-4"><div><span class="text-gray-400">O'qituvchi:</span> <span class="font-medium text-gray-800">Nazarova Aziza</span></div><div><span class="text-gray-400">Dars vaqti:</span> <span class="font-medium text-gray-800">Du,Cho,Ju 14:00-16:00</span></div></div>
-            <div class="mb-4"><div class="flex justify-between text-xs mb-1.5"><span class="text-gray-500">O'quvchilar</span><span class="font-semibold text-gray-700">12 / 15</span></div><div class="w-full h-2 bg-gray-100 rounded-full"><div class="h-full rounded-full bg-amber-500" style="width:80%"></div></div></div>
-            <button class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Tahrirlash</button>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all">
-            <div class="flex items-start justify-between mb-4"><div><h3 class="font-bold text-lg text-gray-900">B2</h3><span class="inline-flex px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium mt-1">Arab tili</span></div><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></div>
-            <div class="space-y-2 text-sm text-gray-600 mb-4"><div><span class="text-gray-400">O'qituvchi:</span> <span class="font-medium text-gray-800">Jo'rayev Rustam</span></div><div><span class="text-gray-400">Dars vaqti:</span> <span class="font-medium text-gray-800">Se,Pay,Sha 10:00-12:00</span></div></div>
-            <div class="mb-4"><div class="flex justify-between text-xs mb-1.5"><span class="text-gray-500">O'quvchilar</span><span class="font-semibold text-gray-700">6 / 12</span></div><div class="w-full h-2 bg-gray-100 rounded-full"><div class="h-full rounded-full bg-indigo-500" style="width:50%"></div></div></div>
-            <button class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Tahrirlash</button>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all">
-            <div class="flex items-start justify-between mb-4"><div><h3 class="font-bold text-lg text-gray-900">C1</h3><span class="inline-flex px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium mt-1">Kores tili</span></div><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></div>
-            <div class="space-y-2 text-sm text-gray-600 mb-4"><div><span class="text-gray-400">O'qituvchi:</span> <span class="font-medium text-gray-800">Kim Soo-jin</span></div><div><span class="text-gray-400">Dars vaqti:</span> <span class="font-medium text-gray-800">Du,Cho,Ju 16:00-18:00</span></div></div>
-            <div class="mb-4"><div class="flex justify-between text-xs mb-1.5"><span class="text-gray-500">O'quvchilar</span><span class="font-semibold text-gray-700">14 / 15</span></div><div class="w-full h-2 bg-gray-100 rounded-full"><div class="h-full rounded-full bg-red-500" style="width:93%"></div></div></div>
-            <button class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Tahrirlash</button>
-          </div>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all">
-            <div class="flex items-start justify-between mb-4"><div><h3 class="font-bold text-lg text-gray-900">D1</h3><span class="inline-flex px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium mt-1">Kompyuter</span></div><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></div>
-            <div class="space-y-2 text-sm text-gray-600 mb-4"><div><span class="text-gray-400">O'qituvchi:</span> <span class="font-medium text-gray-800">Abdullayev Farrux</span></div><div><span class="text-gray-400">Dars vaqti:</span> <span class="font-medium text-gray-800">Se,Pay,Sha 14:00-16:00</span></div></div>
-            <div class="mb-4"><div class="flex justify-between text-xs mb-1.5"><span class="text-gray-500">O'quvchilar</span><span class="font-semibold text-gray-700">7 / 20</span></div><div class="w-full h-2 bg-gray-100 rounded-full"><div class="h-full rounded-full bg-indigo-500" style="width:35%"></div></div></div>
-            <button class="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Tahrirlash</button>
-          </div>
+          <div class="col-span-full text-center py-12 text-gray-400 glass-card rounded-2xl"><div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-100/50 to-blue-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="users-round" class="w-8 h-8 text-indigo-300"></i></div><p class="font-medium">Hali guruhlar yo'q</p><p class="text-sm mt-1 text-gray-300">Guruh qo'shish tugmasini bosing</p></div>
         </div>
       </div>
 
       <!-- PAYMENTS -->
-      <div id="page-payments" class="page fade-in">
-        <div class="flex items-center justify-between mb-6">
+      <div id="page-payments" class="page perspective">
+        <div class="flex items-center justify-between mb-6 fade-in-up">
           <h1 class="text-2xl font-bold text-gray-800">To'lovlar</h1>
-          <button class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> To'lov qabul qilish</button>
+          <button onclick="openModal('payment')" class="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-5 py-2.5 rounded-xl btn-3d shadow-lg shadow-green-500/30"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> To'lov qabul qilish</button>
         </div>
         <div class="flex flex-wrap gap-3 mb-4">
-          <div class="relative flex-1 min-w-48"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i><input placeholder="Qidirish..." class="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-          <select class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option>Iyun</option><option>May</option><option>Aprel</option></select>
-          <select class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option>2026</option><option>2025</option></select>
+          <div class="relative flex-1 min-w-48"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i><input placeholder="Qidirish..." class="w-full glass-white rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border-0"></div>
+          <select class="glass-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border-0"><option>Iyun</option><option>May</option><option>Aprel</option></select>
+          <select class="glass-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border-0"><option>2026</option><option>2025</option></select>
         </div>
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl px-5 py-3 mb-4 flex justify-between items-center">
-          <span class="text-blue-700 font-medium">Iyun 2026 - jami to'lovlar:</span>
-          <span class="text-blue-800 font-bold text-lg">23,500,000 so'm</span>
+        <div class="glass-card rounded-xl px-5 py-3 mb-4 flex justify-between items-center border-indigo-200/30">
+          <span class="text-indigo-700 font-medium flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Jami to'lovlar:</span>
+          <span class="text-indigo-800 font-bold text-lg">0 so'm</span>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
           <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50/80 border-b border-gray-100"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">O'quvchi</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Guruh</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Summa</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Usul</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sana</th></tr></thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Aliyev Jasur</td><td class="px-5 py-4 text-gray-600">A1 • Ingliz tili</td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">500,000</span></td><td class="px-5 py-4"><span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs">Naqd</span></td><td class="px-5 py-4 text-gray-400 text-xs">02.06.2026</td></tr>
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Karimova Madina</td><td class="px-5 py-4 text-gray-600">B2 • Arab tili</td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">450,000</span></td><td class="px-5 py-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs">Karta</span></td><td class="px-5 py-4 text-gray-400 text-xs">01.06.2026</td></tr>
-              <tr class="hover:bg-blue-50/40"><td class="px-5 py-4 font-medium text-gray-900">Xasanov Bobur</td><td class="px-5 py-4 text-gray-600">C1 • Kores tili</td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">550,000</span></td><td class="px-5 py-4"><span class="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs">O'tkazma</span></td><td class="px-5 py-4 text-gray-400 text-xs">31.05.2026</td></tr>
-            </tbody>
+            <thead><tr class="bg-white/30 border-b border-white/20"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">O'quvchi</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Guruh</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Summa</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Usul</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sana</th></tr></thead>
+            <tbody><tr><td colspan="5" class="px-6 py-8 text-center text-gray-400"><div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-green-100/50 to-emerald-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="receipt" class="w-7 h-7 text-green-300"></i></div><p class="font-medium">Hali to'lovlar yo'q</p></td></tr></tbody>
           </table>
         </div>
       </div>
 
       <!-- ATTENDANCE -->
-      <div id="page-attendance" class="page fade-in">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800">Davomat</h1>
+      <div id="page-attendance" class="page perspective">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800 fade-in-up">Davomat</h1>
         <div class="flex flex-wrap gap-3 mb-6">
-          <select id="attendance-group" class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="showAttendance()">
+          <select id="attendance-group" class="glass-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border-0" onchange="showAttendance()">
             <option value="">Guruh tanlang</option>
-            <option value="a1">A1 - Ingliz tili (Du,Cho,Ju 09:00-11:00)</option>
-            <option value="a2">A2 - Ingliz tili (Du,Cho,Ju 14:00-16:00)</option>
-            <option value="b2">B2 - Arab tili (Se,Pay,Sha 10:00-12:00)</option>
-            <option value="c1">C1 - Kores tili (Du,Cho,Ju 16:00-18:00)</option>
-            <option value="d1">D1 - Kompyuter (Se,Pay,Sha 14:00-16:00)</option>
           </select>
-          <input type="date" value="2026-06-03" class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="date" value="2026-06-04" class="glass-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border-0">
         </div>
-
-        <!-- Group info card (shows after selecting) -->
-        <div id="attendance-info" class="hidden mb-6">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-5">
-            <div class="flex items-center gap-4">
-              <div class="p-3 bg-indigo-50 rounded-xl"><i data-lucide="clock" class="w-6 h-6 text-indigo-600"></i></div>
-              <div>
-                <h3 class="font-bold text-gray-900" id="att-group-name">A1 - Ingliz tili</h3>
-                <p class="text-sm text-gray-500" id="att-group-schedule">Du, Cho, Ju • 09:00 - 11:00</p>
-                <p class="text-xs text-gray-400 mt-0.5" id="att-group-teacher">O'qituvchi: Nazarova Aziza</p>
-              </div>
-              <div class="ml-auto text-right">
-                <p class="text-2xl font-bold text-indigo-600" id="att-group-count">8</p>
-                <p class="text-xs text-gray-400">o'quvchi</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-3 gap-4 mb-6">
-            <div class="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-50 border border-green-200"><i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i><span class="font-bold text-green-600 text-lg" id="att-present">6</span><span class="text-sm text-gray-600">Keldi</span></div>
-            <div class="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-200"><i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i><span class="font-bold text-red-600 text-lg" id="att-absent">1</span><span class="text-sm text-gray-600">Kelmadi</span></div>
-            <div class="flex items-center gap-2 px-4 py-3 rounded-xl bg-yellow-50 border border-yellow-200"><i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i><span class="font-bold text-yellow-600 text-lg" id="att-late">1</span><span class="text-sm text-gray-600">Kech</span></div>
-          </div>
-
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
-            <table class="w-full text-sm" id="att-table">
-              <thead><tr class="bg-gray-50/80 border-b border-gray-100"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">O'quvchi</th><th class="px-5 py-3.5 text-center text-green-600 text-xs font-semibold">Keldi</th><th class="px-5 py-3.5 text-center text-red-600 text-xs font-semibold">Kelmadi</th><th class="px-5 py-3.5 text-center text-yellow-600 text-xs font-semibold">Kech</th></tr></thead>
-              <tbody class="divide-y divide-gray-50" id="att-body"></tbody>
-            </table>
-          </div>
-          <button class="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 font-medium" onclick="this.textContent='✓ Saqlandi'; this.classList.replace('bg-blue-600','bg-green-600'); this.classList.replace('hover:bg-blue-700','hover:bg-green-700')">Davomatni saqlash</button>
-        </div>
-
-        <div id="attendance-empty" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-400">
-          <i data-lucide="calendar-check" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
-          <p>Guruh tanlang</p>
+        <div id="attendance-empty" class="glass-card rounded-2xl p-12 text-center text-gray-400">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-100/50 to-purple-100/50 flex items-center justify-center backdrop-blur"><i data-lucide="calendar-days" class="w-8 h-8 text-indigo-300"></i></div>
+          <p class="font-medium">Guruh tanlang</p>
+          <p class="text-sm mt-1 text-gray-300">Davomat belgilash uchun guruhni tanlang</p>
         </div>
       </div>
 
       <!-- USERS -->
-      <div id="page-users" class="page fade-in">
-        <div class="flex items-center justify-between mb-8">
+      <div id="page-users" class="page perspective">
+        <div class="flex items-center justify-between mb-8 fade-in-up">
           <div class="flex items-center gap-3">
-            <div class="p-2.5 bg-gray-100 rounded-xl"><i data-lucide="shield" class="w-[22px] h-[22px] text-gray-600"></i></div>
+            <div class="p-2.5 bg-gradient-to-br from-gray-500/20 to-slate-500/20 backdrop-blur rounded-xl border border-gray-200/30"><i data-lucide="shield" class="w-[22px] h-[22px] text-gray-600"></i></div>
             <div><h1 class="text-2xl font-bold text-gray-900">Foydalanuvchilar</h1><p class="text-sm text-gray-500">Tizim foydalanuvchilari</p></div>
           </div>
-          <button class="flex items-center gap-2 bg-gray-800 text-white px-5 py-2.5 rounded-xl hover:bg-gray-900 transition-colors shadow-sm"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Qo'shish</button>
+          <button onclick="openModal('user')" class="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-slate-800 text-white px-5 py-2.5 rounded-xl btn-3d shadow-lg shadow-gray-500/30"><i data-lucide="plus" class="w-[18px] h-[18px]"></i> Qo'shish</button>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
           <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50/80 border-b border-gray-100"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">F.I.Sh.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Rol</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Holat</th><th class="px-5 py-3.5"></th></tr></thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr class="hover:bg-gray-50/50"><td class="px-5 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-xs font-bold">A</div><span class="font-medium text-gray-900">Admin User</span></div></td><td class="px-5 py-4 text-gray-600">admin@lison.uz</td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">Superadmin</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
-              <tr class="hover:bg-gray-50/50"><td class="px-5 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">G</div><span class="font-medium text-gray-900">Gulnora Resepshn</span></div></td><td class="px-5 py-4 text-gray-600">gulnora@lison.uz</td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Resepshn</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
+            <thead><tr class="bg-white/30 border-b border-white/20"><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">F.I.Sh.</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Rol</th><th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Holat</th><th class="px-5 py-3.5"></th></tr></thead>
+            <tbody>
+              <tr class="hover:bg-white/30 transition-colors"><td class="px-5 py-4"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-lg">A</div><span class="font-medium text-gray-900">Admin</span></div></td><td class="px-5 py-4 text-gray-600">admin@lison.uz</td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100/80 text-purple-700 backdrop-blur">Superadmin</span></td><td class="px-5 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50/80 text-emerald-700 backdrop-blur"><span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Faol</span></td><td class="px-5 py-4"><button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-lg transition-all"><i data-lucide="pencil" class="w-4 h-4"></i></button></td></tr>
             </tbody>
           </table>
         </div>
@@ -407,8 +402,90 @@
   </div>
 </div>
 
+<div id="modal-container"></div>
+
 <script>
   lucide.createIcons();
+
+  // Modal system
+  const modalForms = {
+    subject: { title: "Yangi fan qo'shish", fields: [
+      { name: 'name', label: 'Fan nomi', type: 'text', placeholder: 'Masalan: Ingliz tili', required: true },
+      { name: 'description', label: 'Tavsif', type: 'text', placeholder: 'Qisqacha tavsif' },
+      { name: 'monthly_fee', label: "Oylik to'lov (so'm)", type: 'number', placeholder: '500000', required: true },
+    ]},
+    teacher: { title: "Yangi o'qituvchi qo'shish", fields: [
+      { name: 'full_name', label: 'F.I.Sh.', type: 'text', placeholder: "To'liq ism", required: true },
+      { name: 'phone', label: 'Telefon', type: 'tel', placeholder: '+998 90 123 45 67' },
+      { name: 'subject', label: 'Fan', type: 'text', placeholder: "O'qitadigan fan" },
+    ]},
+    group: { title: "Yangi guruh qo'shish", fields: [
+      { name: 'name', label: 'Guruh nomi', type: 'text', placeholder: 'Masalan: A1', required: true },
+      { name: 'subject', label: 'Fan', type: 'text', placeholder: 'Fan nomi', required: true },
+      { name: 'teacher', label: "O'qituvchi", type: 'text', placeholder: "O'qituvchi ismi" },
+      { name: 'schedule', label: 'Dars vaqti', type: 'text', placeholder: 'Du,Cho,Ju 09:00-11:00' },
+      { name: 'capacity', label: "Sig'imi", type: 'number', placeholder: '15' },
+    ]},
+    student: { title: "Yangi o'quvchi qo'shish", fields: [
+      { name: 'full_name', label: 'F.I.Sh.', type: 'text', placeholder: "To'liq ism", required: true },
+      { name: 'phone', label: 'Telefon', type: 'tel', placeholder: '+998 90 123 45 67' },
+      { name: 'parent_phone', label: 'Ota-ona telefoni', type: 'tel', placeholder: '+998 90 123 45 67' },
+    ]},
+    payment: { title: "To'lov qabul qilish", fields: [
+      { name: 'student', label: "O'quvchi", type: 'text', placeholder: "O'quvchi ismi", required: true },
+      { name: 'group', label: 'Guruh', type: 'text', placeholder: 'Guruh nomi', required: true },
+      { name: 'amount', label: "Summa (so'm)", type: 'number', placeholder: '500000', required: true },
+      { name: 'method', label: "To'lov usuli", type: 'select', options: ['Naqd', 'Karta', "O'tkazma"] },
+    ]},
+    user: { title: "Yangi foydalanuvchi qo'shish", fields: [
+      { name: 'full_name', label: 'F.I.Sh.', type: 'text', placeholder: "To'liq ism", required: true },
+      { name: 'email', label: 'Email', type: 'email', placeholder: 'email@lison.uz', required: true },
+      { name: 'password', label: 'Parol', type: 'password', placeholder: 'Parol kiriting', required: true },
+      { name: 'role', label: 'Rol', type: 'select', options: ['Superadmin', 'Resepshn'] },
+    ]},
+  };
+
+  function openModal(type) {
+    const form = modalForms[type];
+    const fieldsHtml = form.fields.map(f => {
+      if (f.type === 'select') {
+        return `<div><label class="block text-sm font-medium text-gray-700 mb-1.5">${f.label}</label><select name="${f.name}" class="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 backdrop-blur">${f.options.map(o => `<option>${o}</option>`).join('')}</select></div>`;
+      }
+      return `<div><label class="block text-sm font-medium text-gray-700 mb-1.5">${f.label}</label><input type="${f.type}" name="${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} class="w-full bg-white/50 border border-white/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/80 backdrop-blur transition-all"></div>`;
+    }).join('');
+
+    document.getElementById('modal-container').innerHTML = `
+      <div class="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()">
+        <div class="glass-card rounded-3xl shadow-2xl w-full max-w-md modal-in" style="background:rgba(255,255,255,0.85);">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-white/30">
+            <h3 class="text-lg font-bold text-gray-900">${form.title}</h3>
+            <button onclick="closeModal()" class="p-2 hover:bg-white/50 rounded-lg text-gray-400 hover:text-gray-600 transition-all"><i data-lucide="x" class="w-5 h-5"></i></button>
+          </div>
+          <form onsubmit="submitModal(event,'${type}')" class="p-6 space-y-4">
+            ${fieldsHtml}
+            <div class="flex gap-3 pt-2">
+              <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2.5 glass-white rounded-xl text-sm font-medium text-gray-700 hover:bg-white/80 transition-all">Bekor qilish</button>
+              <button type="submit" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium btn-3d shadow-lg shadow-indigo-500/30">Saqlash</button>
+            </div>
+          </form>
+        </div>
+      </div>`;
+    lucide.createIcons();
+  }
+
+  function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
+
+  function submitModal(e, type) {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target));
+    console.log('Saved:', type, data);
+    closeModal();
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-6 right-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl z-50 fade-in-up text-sm font-medium backdrop-blur';
+    toast.innerHTML = '<span class="flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Muvaffaqiyatli saqlandi!</span>';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  }
 
   // Users
   const accounts = {
@@ -430,23 +507,17 @@
     document.getElementById('login-error').classList.add('hidden');
     currentRole = acc.role;
 
-    // Update sidebar user info
-    document.querySelector('#app aside .text-gray-200').textContent = acc.name;
-    document.querySelector('#app aside .text-gray-500').textContent = acc.role === 'superadmin' ? 'Superadmin' : 'Resepshn';
-    document.querySelector('#app aside .rounded-full').textContent = acc.name.charAt(0);
+    document.querySelector('#app aside .text-white\\/90').textContent = acc.name;
+    document.querySelector('#app aside .text-white\\/50').textContent = acc.role === 'superadmin' ? 'Superadmin' : 'Resepshn';
 
-    // Show/hide nav items based on role
     document.querySelectorAll('.nav-admin').forEach(el => el.classList.toggle('hidden', acc.role !== 'superadmin'));
     document.querySelectorAll('.nav-reception').forEach(el => el.classList.toggle('hidden', acc.role !== 'reception'));
-
-    // Also hide subjects/teachers from reception
     document.querySelectorAll('[data-page="subjects"], [data-page="teachers"]').forEach(el => {
       el.classList.toggle('hidden', acc.role === 'reception');
     });
 
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
-    // Reset to dashboard
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-dashboard').classList.add('active');
     document.getElementById('page-title').textContent = 'Boshqaruv paneli';
@@ -469,6 +540,12 @@
     attendance: 'Davomat', users: 'Foydalanuvchilar'
   };
 
+  const titleIcons = {
+    dashboard: 'compass', students: 'users', subjects: 'book-open',
+    teachers: 'graduation-cap', groups: 'user-check', payments: 'credit-card',
+    attendance: 'calendar-check', users: 'shield'
+  };
+
   document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -476,63 +553,17 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById('page-' + page).classList.add('active');
       document.querySelectorAll('.nav-link').forEach(l => {
-        l.classList.remove('text-blue-400', 'bg-blue-600/20', 'border-l-[3px]', 'border-blue-400', 'pl-[9px]');
-        l.classList.add('text-gray-400');
+        l.classList.remove('active', 'text-white/90');
+        l.classList.add('text-white/60');
       });
-      this.classList.remove('text-gray-400');
-      this.classList.add('text-blue-400', 'bg-blue-600/20', 'border-l-[3px]', 'border-blue-400', 'pl-[9px]');
-      document.getElementById('page-title').textContent = titles[page] || '';
+      this.classList.remove('text-white/60');
+      this.classList.add('active', 'text-white/90');
+      document.getElementById('page-title').innerHTML = `<i data-lucide="${titleIcons[page] || 'compass'}" class="w-4 h-4 text-indigo-400"></i> ${titles[page] || ''}`;
+      lucide.createIcons();
     });
   });
 
-  // Attendance data
-  const groupsData = {
-    a1: { name: 'A1 - Ingliz tili', schedule: 'Du, Cho, Ju • 09:00 - 11:00', teacher: 'Nazarova Aziza', students: ['Aliyev Jasur', 'Karimova Madina', 'Xasanov Bobur', 'Toshmatova Nilufar', 'Rahimov Sardor', 'Ismoilov Sherzod', 'Qodirova Shahnoza', 'Nurmatov Asilbek'] },
-    a2: { name: 'A2 - Ingliz tili', schedule: 'Du, Cho, Ju • 14:00 - 16:00', teacher: 'Nazarova Aziza', students: ['Sobirov Ulugbek', 'Ergasheva Dildora', 'Abdullayev Javohir', 'Mirzayeva Kamola', 'Tursunov Bekzod', 'Yusupova Barno', 'Hasanov Mirzo', 'Karimov Dostonbek', 'Umarova Zulfiya', 'Raxmatullayev Oybek', 'Azimova Feruza', 'Salimov Otabek'] },
-    b2: { name: 'B2 - Arab tili', schedule: 'Se, Pay, Sha • 10:00 - 12:00', teacher: "Jo'rayev Rustam", students: ['Aliyev Jasur', 'Ergasheva Dildora', 'Nurmatov Asilbek', 'Karimov Dostonbek', 'Toshmatova Nilufar', 'Hasanov Mirzo'] },
-    c1: { name: 'C1 - Kores tili', schedule: 'Du, Cho, Ju • 16:00 - 18:00', teacher: 'Kim Soo-jin', students: ['Xasanov Bobur', 'Sobirov Ulugbek', 'Mirzayeva Kamola', 'Tursunov Bekzod', 'Yusupova Barno', 'Qodirova Shahnoza', 'Ismoilov Sherzod', 'Abdullayev Javohir', 'Rahimov Sardor', 'Umarova Zulfiya', 'Raxmatullayev Oybek', 'Azimova Feruza', 'Salimov Otabek', 'Karimova Madina'] },
-    d1: { name: 'D1 - Kompyuter savodxonligi', schedule: 'Se, Pay, Sha • 14:00 - 16:00', teacher: 'Abdullayev Farrux', students: ['Rahimov Sardor', 'Toshmatova Nilufar', 'Ismoilov Sherzod', 'Sobirov Ulugbek', 'Ergasheva Dildora', 'Nurmatov Asilbek', 'Aliyev Jasur'] },
-  };
-
-  function showAttendance() {
-    const sel = document.getElementById('attendance-group').value;
-    const info = document.getElementById('attendance-info');
-    const empty = document.getElementById('attendance-empty');
-    if (!sel) { info.classList.add('hidden'); empty.classList.remove('hidden'); return; }
-    info.classList.remove('hidden'); empty.classList.add('hidden');
-    const g = groupsData[sel];
-    document.getElementById('att-group-name').textContent = g.name;
-    document.getElementById('att-group-schedule').textContent = g.schedule;
-    document.getElementById('att-group-teacher').textContent = "O'qituvchi: " + g.teacher;
-    document.getElementById('att-group-count').textContent = g.students.length;
-    const body = document.getElementById('att-body');
-    body.innerHTML = g.students.map((s, i) => `
-      <tr class="hover:bg-gray-50">
-        <td class="px-5 py-3.5"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">${s.split(' ').map(n=>n[0]).join('')}</div><span class="font-medium text-gray-900">${s}</span></div></td>
-        <td class="text-center"><input type="radio" name="att${i}" checked class="w-4 h-4 accent-green-600 cursor-pointer" onchange="updateCounts()"></td>
-        <td class="text-center"><input type="radio" name="att${i}" class="w-4 h-4 accent-red-600 cursor-pointer" onchange="updateCounts()"></td>
-        <td class="text-center"><input type="radio" name="att${i}" class="w-4 h-4 accent-yellow-600 cursor-pointer" onchange="updateCounts()"></td>
-      </tr>
-    `).join('');
-    document.getElementById('att-present').textContent = g.students.length;
-    document.getElementById('att-absent').textContent = '0';
-    document.getElementById('att-late').textContent = '0';
-    lucide.createIcons();
-  }
-
-  function updateCounts() {
-    const rows = document.querySelectorAll('#att-body tr');
-    let p=0, a=0, l=0;
-    rows.forEach((row, i) => {
-      const radios = row.querySelectorAll('input[type=radio]');
-      if (radios[0].checked) p++;
-      else if (radios[1].checked) a++;
-      else if (radios[2].checked) l++;
-    });
-    document.getElementById('att-present').textContent = p;
-    document.getElementById('att-absent').textContent = a;
-    document.getElementById('att-late').textContent = l;
-  }
+  function showAttendance() {}
 </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Student, Group, Subject } from '@/lib/types'
-import { Plus, Pencil, UserPlus, Eye } from 'lucide-react'
+import { Plus, Pencil, UserPlus, Eye, Search } from 'lucide-react'
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([])
@@ -58,7 +58,6 @@ export default function StudentsPage() {
       const { data } = await supabase.from('students').insert(payload).select().single()
       studentId = data?.id
     }
-    // Enroll to group if selected
     if (!editId && form.group_id && studentId) {
       await supabase.from('enrollments').upsert({ student_id: studentId, group_id: form.group_id, is_active: true })
     }
@@ -94,58 +93,81 @@ export default function StudentsPage() {
     : groups
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">O'quvchilar</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-800">O&apos;quvchilar</h1>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ full_name: '', phone: '', parent_phone: '', birth_date: '', address: '', group_id: '' }) }}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-          <UserPlus size={16} /> Yangi o'quvchi
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+          <UserPlus size={18} /> Yangi o&apos;quvchi
         </button>
       </div>
 
-      <input
-        placeholder="Ism yoki telefon bo'yicha qidirish..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        className="w-full border rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      />
+      <div className="relative">
+        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          placeholder="Ism yoki telefon bo'yicha qidirish..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white shadow-sm transition-all"
+        />
+      </div>
 
       {/* Add/Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-bold text-lg">{editId ? 'O\'quvchini tahrirlash' : 'Yangi o\'quvchi ro\'yxatga olish'}</h2>
-            <input className="input" placeholder="F.I.Sh. *" value={form.full_name}
-              onChange={e => setForm({ ...form, full_name: e.target.value })} required />
-            <input className="input" placeholder="Telefon raqami" value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value })} />
-            <input className="input" placeholder="Ota-ona telefoni" value={form.parent_phone}
-              onChange={e => setForm({ ...form, parent_phone: e.target.value })} />
-            <div>
-              <label className="text-xs text-gray-500">Tug'ilgan sana</label>
-              <input className="input" type="date" value={form.birth_date}
-                onChange={e => setForm({ ...form, birth_date: e.target.value })} />
-            </div>
-            <input className="input" placeholder="Manzil" value={form.address}
-              onChange={e => setForm({ ...form, address: e.target.value })} />
-            {!editId && (
-              <div className="border-t pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Guruhga biriktirish (ixtiyoriy)</p>
-                <select className="input mb-2" value={selectedSubjectFilter}
-                  onChange={e => setSelectedSubjectFilter(e.target.value)}>
-                  <option value="">Barcha fanlar</option>
-                  {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-                <select className="input" value={form.group_id}
-                  onChange={e => setForm({ ...form, group_id: e.target.value })}>
-                  <option value="">Guruh tanlang</option>
-                  {filteredGroups.map(g => <option key={g.id} value={g.id}>{g.name} - {(g.subjects as any)?.name}</option>)}
-                </select>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 w-full max-w-lg shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in">
+            <h2 className="font-bold text-xl text-gray-800">{editId ? 'O\'quvchini tahrirlash' : 'Yangi o\'quvchi ro\'yxatga olish'}</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1 block">F.I.Sh. *</label>
+                <input className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" placeholder="To'liq ism" value={form.full_name}
+                  onChange={e => setForm({ ...form, full_name: e.target.value })} required />
               </div>
-            )}
-            <div className="flex gap-3">
-              <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-lg">Saqlash</button>
-              <button type="button" onClick={() => setShowForm(false)} className="flex-1 border py-2 rounded-lg">Bekor</button>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Telefon</label>
+                  <input className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" placeholder="+998..." value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Ota-ona telefoni</label>
+                  <input className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" placeholder="+998..." value={form.parent_phone}
+                    onChange={e => setForm({ ...form, parent_phone: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Tug&apos;ilgan sana</label>
+                  <input className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" type="date" value={form.birth_date}
+                    onChange={e => setForm({ ...form, birth_date: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Manzil</label>
+                  <input className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" placeholder="Manzil" value={form.address}
+                    onChange={e => setForm({ ...form, address: e.target.value })} />
+                </div>
+              </div>
+              {!editId && (
+                <div className="border-t border-gray-100 pt-4 mt-2">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Guruhga biriktirish (ixtiyoriy)</p>
+                  <div className="space-y-2">
+                    <select className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" value={selectedSubjectFilter}
+                      onChange={e => setSelectedSubjectFilter(e.target.value)}>
+                      <option value="">Barcha fanlar</option>
+                      {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                    <select className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" value={form.group_id}
+                      onChange={e => setForm({ ...form, group_id: e.target.value })}>
+                      <option value="">Guruh tanlang</option>
+                      {filteredGroups.map(g => <option key={g.id} value={g.id}>{g.name} - {(g.subjects as any)?.name}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button type="submit" className="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-all shadow-md">Saqlash</button>
+              <button type="button" onClick={() => setShowForm(false)} className="flex-1 border border-gray-200 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition-all">Bekor</button>
             </div>
           </form>
         </div>
@@ -153,66 +175,80 @@ export default function StudentsPage() {
 
       {/* Enroll Modal */}
       {showEnroll && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4">
-            <h2 className="font-bold text-lg">{showEnroll.full_name} - Guruhlar</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <UserPlus size={18} className="text-blue-600" />
+              </div>
+              <h2 className="font-bold text-lg text-gray-800">{showEnroll.full_name}</h2>
+            </div>
             <div className="space-y-2">
               {enrollments.map(e => (
-                <div key={e.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                  <span className="text-sm">{e.groups?.name} - {e.groups?.subjects?.name}</span>
+                <div key={e.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                  <span className="text-sm font-medium text-gray-700">{e.groups?.name} - {e.groups?.subjects?.name}</span>
                   <button onClick={() => removeEnrollment(e.id, showEnroll.id)}
-                    className="text-red-500 text-xs hover:text-red-700">Chiqarish</button>
+                    className="text-red-500 text-xs font-medium hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-all">Chiqarish</button>
                 </div>
               ))}
-              {enrollments.length === 0 && <p className="text-sm text-gray-400">Guruhlar yo'q</p>}
+              {enrollments.length === 0 && <p className="text-sm text-gray-400 text-center py-4">Guruhlar yo&apos;q</p>}
             </div>
-            <div className="border-t pt-3 space-y-2">
-              <p className="text-sm font-medium">Guruhga qo'shish:</p>
-              <select className="input" value={selectedGroupId} onChange={e => setSelectedGroupId(e.target.value)}>
+            <div className="border-t border-gray-100 pt-4 space-y-3">
+              <p className="text-sm font-semibold text-gray-700">Guruhga qo&apos;shish:</p>
+              <select className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" value={selectedGroupId} onChange={e => setSelectedGroupId(e.target.value)}>
                 <option value="">Guruh tanlang</option>
                 {groups.map(g => <option key={g.id} value={g.id}>{g.name} - {(g.subjects as any)?.name}</option>)}
               </select>
               <button onClick={() => handleEnroll(showEnroll)}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg">Qo'shish</button>
+                className="w-full bg-blue-600 text-white py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-all shadow-md">Qo&apos;shish</button>
             </div>
-            <button onClick={() => setShowEnroll(null)} className="w-full border py-2 rounded-lg">Yopish</button>
+            <button onClick={() => setShowEnroll(null)} className="w-full border border-gray-200 py-2.5 rounded-xl font-medium hover:bg-gray-50 transition-all">Yopish</button>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-gray-50/80 border-b border-gray-100">
             <tr>
-              <th className="text-left px-4 py-3">F.I.Sh.</th>
-              <th className="text-left px-4 py-3">Telefon</th>
-              <th className="text-left px-4 py-3">Ota-ona tel.</th>
-              <th className="text-left px-4 py-3">Sana</th>
-              <th className="px-4 py-3"></th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">O&apos;quvchi</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Telefon</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Ota-ona tel.</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sana</th>
+              <th className="px-5 py-4"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-50">
             {filteredStudents.map(s => (
-              <tr key={s.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{s.full_name}</td>
-                <td className="px-4 py-3">{s.phone || '-'}</td>
-                <td className="px-4 py-3">{s.parent_phone || '-'}</td>
-                <td className="px-4 py-3 text-gray-400 text-xs">{new Date(s.created_at).toLocaleDateString('uz-UZ')}</td>
-                <td className="px-4 py-3 flex gap-2">
-                  <button onClick={() => { setShowEnroll(s); loadEnrollments(s.id) }}
-                    className="text-green-500 hover:text-green-700" title="Guruhlar">
-                    <Eye size={15} />
-                  </button>
-                  <button onClick={() => startEdit(s)} className="text-blue-500 hover:text-blue-700">
-                    <Pencil size={15} />
-                  </button>
+              <tr key={s.id} className="hover:bg-blue-50/30 transition-all">
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                      {s.full_name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-gray-800">{s.full_name}</span>
+                  </div>
+                </td>
+                <td className="px-5 py-4 text-gray-600">{s.phone || '-'}</td>
+                <td className="px-5 py-4 text-gray-600">{s.parent_phone || '-'}</td>
+                <td className="px-5 py-4 text-gray-400 text-xs">{new Date(s.created_at).toLocaleDateString('uz-UZ')}</td>
+                <td className="px-5 py-4">
+                  <div className="flex gap-1">
+                    <button onClick={() => { setShowEnroll(s); loadEnrollments(s.id) }}
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all" title="Guruhlar">
+                      <Eye size={16} />
+                    </button>
+                    <button onClick={() => startEdit(s)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Tahrirlash">
+                      <Pencil size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {filteredStudents.length === 0 && (
-          <p className="text-center text-gray-400 py-8">O'quvchilar topilmadi</p>
+          <p className="text-center text-gray-400 py-12">O&apos;quvchilar topilmadi</p>
         )}
       </div>
     </div>

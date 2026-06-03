@@ -30,35 +30,62 @@ export default function Sidebar({ role, userName }: { role: string; userName: st
   const pathname = usePathname()
   const links = role === 'superadmin' ? adminLinks : receptionLinks
 
+  const isActive = (href: string) =>
+    pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'))
+
   return (
-    <aside className="w-56 bg-blue-800 text-white flex flex-col">
-      <div className="p-4 border-b border-blue-700">
-        <h1 className="font-bold text-lg">Lison CRM</h1>
-        <p className="text-blue-300 text-xs mt-1">{userName}</p>
-        <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full mt-1 inline-block">
-          {role === 'superadmin' ? 'Superadmin' : 'Resepshn'}
-        </span>
+    <aside className="w-64 bg-gray-900 text-white flex flex-col relative overflow-hidden">
+      {/* Gradient accent */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+
+      {/* Logo */}
+      <div className="p-5 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            <GraduationCap size={20} />
+          </div>
+          <span className="font-bold text-lg">Lison CRM</span>
+        </div>
       </div>
-      <nav className="flex-1 p-3 space-y-1">
+
+      {/* User info */}
+      <div className="px-5 pb-4 mb-2 border-b border-gray-800">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-300">
+            {userName.charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-gray-200 truncate">{userName}</p>
+            <span className="text-xs text-gray-500">
+              {role === 'superadmin' ? 'Superadmin' : 'Resepshn'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
         {links.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-              pathname === href || pathname.startsWith(href + '/')
-                ? 'bg-blue-600 text-white'
-                : 'text-blue-200 hover:bg-blue-700'
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
+              isActive(href)
+                ? 'bg-blue-600/20 text-blue-400 border-l-[3px] border-blue-400 pl-[9px]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
             }`}
           >
-            <Icon size={16} />
+            <Icon size={18} />
             {label}
           </Link>
         ))}
       </nav>
-      <div className="p-3 border-t border-blue-700">
+
+      {/* Logout */}
+      <div className="p-3 border-t border-gray-800">
         <form action={logout}>
-          <button className="flex items-center gap-3 text-blue-200 hover:text-white text-sm w-full px-3 py-2 rounded-lg hover:bg-blue-700">
-            <LogOut size={16} />
+          <button className="flex items-center gap-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 text-sm w-full px-3 py-2.5 rounded-lg transition-all duration-200">
+            <LogOut size={18} />
             Chiqish
           </button>
         </form>
