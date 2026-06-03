@@ -11,13 +11,8 @@ function getStats() {
   }
 }
 
-function getRecentPayments() {
-  return []
-}
-
 export default function DashboardPage() {
   const stats = getStats()
-  const recentPayments = getRecentPayments()
 
   const totalAttendance = stats.presentToday + stats.absentToday + stats.lateToday
   const attendancePercent = totalAttendance > 0 ? Math.round((stats.presentToday / totalAttendance) * 100) : 0
@@ -113,16 +108,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {recentPayments.length === 0 ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Hali to&apos;lovlar yo&apos;q</td></tr>
-              ) : recentPayments.map(p => (
-                <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-800">{p.students.full_name}</td>
-                  <td className="px-6 py-4 text-gray-600">{p.groups.name} <span className="text-gray-400">•</span> {p.groups.subjects.name}</td>
-                  <td className="px-6 py-4"><span className="inline-flex px-2.5 py-1 rounded-lg bg-green-50 text-green-700 font-semibold text-xs">{Number(p.amount).toLocaleString()} so&apos;m</span></td>
-                  <td className="px-6 py-4 text-gray-400 text-xs">{new Date(p.payment_date).toLocaleDateString('uz-UZ')}</td>
-                </tr>
-              ))}
+              <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Hali to&apos;lovlar yo&apos;q</td></tr>
             </tbody>
           </table>
         </div>
