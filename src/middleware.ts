@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
+  // Skip server actions (POST with Next-Action header)
+  if (request.headers.get('next-action')) {
+    return NextResponse.next()
+  }
+
   const role = request.cookies.get('demo_role')?.value
   const { pathname } = request.nextUrl
 
