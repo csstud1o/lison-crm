@@ -12,11 +12,16 @@ export async function getSubjects() {
   return data || []
 }
 export async function upsertSubject(payload: { name: string; description: string; monthly_fee: number }, id?: string) {
-  if (id) return supabase.from('subjects').update(payload).eq('id', id)
-  return supabase.from('subjects').insert(payload)
+  if (id) {
+    const { error } = await supabase.from('subjects').update(payload).eq('id', id)
+    return { error: error ? { message: error.message } : null }
+  }
+  const { error } = await supabase.from('subjects').insert(payload)
+  return { error: error ? { message: error.message } : null }
 }
 export async function toggleSubjectActive(id: string, is_active: boolean) {
-  return supabase.from('subjects').update({ is_active }).eq('id', id)
+  const { error } = await supabase.from('subjects').update({ is_active }).eq('id', id)
+  return { error: error ? { message: error.message } : null }
 }
 
 // === TEACHERS ===
@@ -29,11 +34,16 @@ export async function getActiveSubjects() {
   return data || []
 }
 export async function upsertTeacher(payload: { full_name: string; phone: string | null; subject_id: string | null }, id?: string) {
-  if (id) return supabase.from('teachers').update(payload).eq('id', id)
-  return supabase.from('teachers').insert(payload)
+  if (id) {
+    const { error } = await supabase.from('teachers').update(payload).eq('id', id)
+    return { error: error ? { message: error.message } : null }
+  }
+  const { error } = await supabase.from('teachers').insert(payload)
+  return { error: error ? { message: error.message } : null }
 }
 export async function toggleTeacherActive(id: string, is_active: boolean) {
-  return supabase.from('teachers').update({ is_active }).eq('id', id)
+  const { error } = await supabase.from('teachers').update({ is_active }).eq('id', id)
+  return { error: error ? { message: error.message } : null }
 }
 
 // === GROUPS ===
@@ -46,11 +56,16 @@ export async function getActiveTeachers() {
   return data || []
 }
 export async function upsertGroup(payload: { name: string; subject_id: string; teacher_id: string | null; schedule: string; capacity: number }, id?: string) {
-  if (id) return supabase.from('groups').update(payload).eq('id', id)
-  return supabase.from('groups').insert(payload)
+  if (id) {
+    const { error } = await supabase.from('groups').update(payload).eq('id', id)
+    return { error: error ? { message: error.message } : null }
+  }
+  const { error } = await supabase.from('groups').insert(payload)
+  return { error: error ? { message: error.message } : null }
 }
 export async function toggleGroupActive(id: string, is_active: boolean) {
-  return supabase.from('groups').update({ is_active }).eq('id', id)
+  const { error } = await supabase.from('groups').update({ is_active }).eq('id', id)
+  return { error: error ? { message: error.message } : null }
 }
 
 // === STUDENTS ===
@@ -71,14 +86,16 @@ export async function upsertStudent(payload: { full_name: string; phone: string 
   return data?.id
 }
 export async function enrollStudent(student_id: string, group_id: string) {
-  return supabase.from('enrollments').upsert({ student_id, group_id, is_active: true })
+  const { error } = await supabase.from('enrollments').upsert({ student_id, group_id, is_active: true })
+  return { error: error ? { message: error.message } : null }
 }
 export async function getStudentEnrollments(studentId: string) {
   const { data } = await supabase.from('enrollments').select('*, groups(name, subjects(name))').eq('student_id', studentId).eq('is_active', true)
   return data || []
 }
 export async function removeEnrollment(enrollId: string) {
-  return supabase.from('enrollments').update({ is_active: false, left_at: new Date().toISOString() }).eq('id', enrollId)
+  const { error } = await supabase.from('enrollments').update({ is_active: false, left_at: new Date().toISOString() }).eq('id', enrollId)
+  return { error: error ? { message: error.message } : null }
 }
 
 // === PAYMENTS ===
@@ -95,7 +112,8 @@ export async function getStudentActiveEnrollments(studentId: string) {
   return data || []
 }
 export async function createPayment(payload: { student_id: string; group_id: string; amount: number; payment_date: string; month: number; year: number; payment_method: string; note: string | null }) {
-  return supabase.from('payments').insert(payload)
+  const { error } = await supabase.from('payments').insert(payload)
+  return { error: error ? { message: error.message } : null }
 }
 
 // === ATTENDANCE ===
@@ -111,7 +129,8 @@ export async function getGroupStudentsWithAttendance(groupId: string, date: stri
   return { students: enrolls.data || [], attendance: existing.data || [] }
 }
 export async function saveAttendanceRecords(records: { student_id: string; group_id: string; date: string; status: string }[]) {
-  return supabase.from('attendance').upsert(records, { onConflict: 'student_id,group_id,date' })
+  const { error } = await supabase.from('attendance').upsert(records, { onConflict: 'student_id,group_id,date' })
+  return { error: error ? { message: error.message } : null }
 }
 
 // === DASHBOARD ===
@@ -154,8 +173,10 @@ export async function getUsers() {
   return data || []
 }
 export async function updateUser(id: string, payload: { full_name: string; role: string }) {
-  return supabase.from('users').update(payload).eq('id', id)
+  const { error } = await supabase.from('users').update(payload).eq('id', id)
+  return { error: error ? { message: error.message } : null }
 }
 export async function toggleUserActive(id: string, is_active: boolean) {
-  return supabase.from('users').update({ is_active }).eq('id', id)
+  const { error } = await supabase.from('users').update({ is_active }).eq('id', id)
+  return { error: error ? { message: error.message } : null }
 }
