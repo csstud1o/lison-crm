@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getTeachers, getActiveSubjects, upsertTeacher, toggleTeacherActive } from '@/app/actions/crud'
 import { Teacher, Subject } from '@/lib/types'
 import { Plus, Pencil, GraduationCap } from 'lucide-react'
 
@@ -10,24 +10,17 @@ export default function TeachersPage() {
   const [form, setForm] = useState({ full_name: '', phone: '', subject_id: '' })
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const supabase = createClient()
 
   async function load() {
-    const [t, s] = await Promise.all([
-      supabase.from('teachers').select('*, subjects(name)').order('created_at'),
-      supabase.from('subjects').select('*').eq('is_active', true)
-    ])
-    setTeachers(t.data || [])
-    setSubjects(s.data || [])
+    const [t, s] = await Promise.all([getTeachers(), getActiveSubjects()])
+    setTeachers(t); setSubjects(s)
   }
 
   useEffect(() => { load() }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = { full_name: form.full_name, phone: form.phone, subject_id: form.subject_id || null }
-    if (editId) await supabase.from('teachers').update(payload).eq('id', editId)
-    else await supabase.from('teachers').insert(payload)
+    await upsertTeacher({ full_name: form.full_name, phone: form.phone || null, subject_id: form.subject_id || null }, editId || undefined)
     setForm({ full_name: '', phone: '', subject_id: '' })
     setEditId(null); setShowForm(false); load()
   }
@@ -37,8 +30,8 @@ export default function TeachersPage() {
     setEditId(t.id); setShowForm(true)
   }
 
-  async function toggleActive(t: Teacher) {
-    await supabase.from('teachers').update({ is_active: !t.is_active }).eq('id', t.id)
+  async function handleToggle(t: Teacher) {
+    await toggleTeacherActive(t.id, !t.is_active)
     load()
   }
 
@@ -129,7 +122,7 @@ export default function TeachersPage() {
                   ) : <span className="text-gray-400">—</span>}
                 </td>
                 <td className="px-5 py-4">
-                  <button onClick={() => toggleActive(t)}
+                  <button onClick={() => handleToggle(t)}
                     className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${t.is_active ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${t.is_active ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
                     {t.is_active ? 'Faol' : 'Nofaol'}

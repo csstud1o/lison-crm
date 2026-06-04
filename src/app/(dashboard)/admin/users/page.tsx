@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getUsers, updateUser, toggleUserActive } from '@/app/actions/crud'
 import { User } from '@/lib/types'
 import { Plus, Pencil, Shield } from 'lucide-react'
 
@@ -10,20 +10,15 @@ export default function AdminUsersPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [msg, setMsg] = useState('')
-  const supabase = createClient()
 
-  async function load() {
-    const { data } = await supabase.from('users').select('*').order('created_at')
-    setUsers(data || [])
-  }
-
+  async function load() { setUsers(await getUsers()) }
   useEffect(() => { load() }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setMsg('')
     if (editId) {
-      await supabase.from('users').update({ full_name: form.full_name, role: form.role as any }).eq('id', editId)
+      await updateUser(editId, { full_name: form.full_name, role: form.role })
       setMsg('Saqlandi!')
     } else {
       const res = await fetch('/api/admin/create-user', {
@@ -39,8 +34,8 @@ export default function AdminUsersPage() {
     setEditId(null); setShowForm(false); load()
   }
 
-  async function toggleActive(u: User) {
-    await supabase.from('users').update({ is_active: !u.is_active }).eq('id', u.id)
+  async function handleToggle(u: User) {
+    await toggleUserActive(u.id, !u.is_active)
     load()
   }
 
@@ -60,9 +55,7 @@ export default function AdminUsersPage() {
       </div>
 
       {msg && (
-        <div className={`text-sm px-4 py-3 rounded-xl border ${
-          msg.startsWith('Xato') ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'
-        }`}>{msg}</div>
+        <div className={`text-sm px-4 py-3 rounded-xl border ${msg.startsWith('Xato') ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>{msg}</div>
       )}
 
       {showForm && (
@@ -122,9 +115,7 @@ export default function AdminUsersPage() {
               <tr key={u.id} className="hover:bg-blue-50/30 transition-all">
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold ${
-                      u.role === 'superadmin' ? 'bg-gradient-to-br from-purple-400 to-purple-600' : 'bg-gradient-to-br from-blue-400 to-blue-600'
-                    }`}>
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold ${u.role === 'superadmin' ? 'bg-gradient-to-br from-purple-400 to-purple-600' : 'bg-gradient-to-br from-blue-400 to-blue-600'}`}>
                       {u.full_name.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-medium text-gray-800">{u.full_name}</span>
@@ -132,18 +123,14 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="px-5 py-4 text-gray-600">{u.email}</td>
                 <td className="px-5 py-4">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                    u.role === 'superadmin' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'
-                  }`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${u.role === 'superadmin' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
                     <Shield size={12} />
                     {u.role === 'superadmin' ? 'Superadmin' : 'Resepshn'}
                   </span>
                 </td>
                 <td className="px-5 py-4">
-                  <button onClick={() => toggleActive(u)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                      u.is_active ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-red-50 text-red-700 hover:bg-red-100'
-                    }`}>
+                  <button onClick={() => handleToggle(u)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${u.is_active ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}>
                     {u.is_active ? 'Faol' : 'Nofaol'}
                   </button>
                 </td>

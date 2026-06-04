@@ -1,18 +1,12 @@
 import { Users, BookOpen, UserCheck, CreditCard, TrendingUp, GraduationCap } from 'lucide-react'
+import { getDashboardStats } from '@/app/actions/crud'
 
 const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
 
-function getStats() {
-  const now = new Date()
-  return {
-    students: 0, groups: 0, subjects: 0, teachers: 0,
-    monthTotal: 0, presentToday: 0, absentToday: 0, lateToday: 0,
-    month: now.getMonth() + 1, year: now.getFullYear(),
-  }
-}
+export const dynamic = 'force-dynamic'
 
-export default function DashboardPage() {
-  const stats = getStats()
+export default async function DashboardPage() {
+  const stats = await getDashboardStats()
 
   const totalAttendance = stats.presentToday + stats.absentToday + stats.lateToday
   const attendancePercent = totalAttendance > 0 ? Math.round((stats.presentToday / totalAttendance) * 100) : 0
@@ -56,10 +50,6 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800 mb-3">{stats.monthTotal.toLocaleString()} <span className="text-base font-normal text-gray-500">so&apos;m</span></p>
-          <div className="w-full bg-gray-100 rounded-full h-2.5">
-            <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-2.5 rounded-full" style={{ width: '65%' }} />
-          </div>
-          <p className="text-xs text-gray-400 mt-2">Taxminiy to&apos;lov rejasiga nisbatan</p>
         </div>
 
         <div className="glass-card rounded-2xl p-6 card-3d">
@@ -108,7 +98,16 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Hali to&apos;lovlar yo&apos;q</td></tr>
+              {stats.recentPayments.length > 0 ? stats.recentPayments.map((p: any) => (
+                <tr key={p.id} className="hover:bg-blue-50/30">
+                  <td className="px-6 py-3 font-medium text-gray-800">{p.students?.full_name}</td>
+                  <td className="px-6 py-3 text-gray-600">{p.groups?.name} - {p.groups?.subjects?.name}</td>
+                  <td className="px-6 py-3 text-green-700 font-semibold">{Number(p.amount).toLocaleString()} so&apos;m</td>
+                  <td className="px-6 py-3 text-gray-400 text-xs">{new Date(p.payment_date).toLocaleDateString('uz-UZ')}</td>
+                </tr>
+              )) : (
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Hali to&apos;lovlar yo&apos;q</td></tr>
+              )}
             </tbody>
           </table>
         </div>

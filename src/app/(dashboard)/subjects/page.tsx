@@ -1,47 +1,34 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getSubjects, upsertSubject, toggleSubjectActive } from '@/app/actions/crud'
 import { Subject } from '@/lib/types'
-import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react'
+import { Plus, Pencil, BookOpen } from 'lucide-react'
 
 export default function SubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [form, setForm] = useState({ name: '', description: '', monthly_fee: '' })
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const supabase = createClient()
 
-  async function load() {
-    const { data } = await supabase.from('subjects').select('*').order('created_at')
-    setSubjects(data || [])
-  }
-
+  async function load() { setSubjects(await getSubjects()) }
   useEffect(() => { load() }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const payload = { name: form.name, description: form.description, monthly_fee: Number(form.monthly_fee) }
-    if (editId) {
-      const { error } = await supabase.from('subjects').update(payload).eq('id', editId)
-      if (error) { alert('Xato: ' + error.message); return }
-    } else {
-      const { error } = await supabase.from('subjects').insert(payload)
-      if (error) { alert('Xato: ' + error.message); return }
-    }
+    const { error } = await upsertSubject(payload, editId || undefined) as any
+    if (error) { alert('Xato: ' + error.message); return }
     setForm({ name: '', description: '', monthly_fee: '' })
-    setEditId(null)
-    setShowForm(false)
-    load()
+    setEditId(null); setShowForm(false); load()
   }
 
   function startEdit(s: Subject) {
     setForm({ name: s.name, description: s.description || '', monthly_fee: String(s.monthly_fee) })
-    setEditId(s.id)
-    setShowForm(true)
+    setEditId(s.id); setShowForm(true)
   }
 
-  async function toggleActive(s: Subject) {
-    await supabase.from('subjects').update({ is_active: !s.is_active }).eq('id', s.id)
+  async function handleToggle(s: Subject) {
+    await toggleSubjectActive(s.id, !s.is_active)
     load()
   }
 
@@ -108,7 +95,7 @@ export default function SubjectsPage() {
                 <td className="px-5 py-4 text-gray-500">{s.description || '—'}</td>
                 <td className="px-5 py-4 font-medium text-gray-900">{s.monthly_fee.toLocaleString()} <span className="text-gray-400 font-normal">so&apos;m</span></td>
                 <td className="px-5 py-4">
-                  <button onClick={() => toggleActive(s)}
+                  <button onClick={() => handleToggle(s)}
                     className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${s.is_active ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${s.is_active ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
                     {s.is_active ? 'Faol' : 'Nofaol'}

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getGroups, getActiveSubjects, getActiveTeachers, upsertGroup, toggleGroupActive } from '@/app/actions/crud'
 import { Group, Subject, Teacher } from '@/lib/types'
 import { Plus, Pencil, Users } from 'lucide-react'
 
@@ -11,30 +11,21 @@ export default function GroupsPage() {
   const [form, setForm] = useState({ name: '', subject_id: '', teacher_id: '', schedule: '', capacity: '20' })
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const supabase = createClient()
 
   async function load() {
-    const [g, s, t] = await Promise.all([
-      supabase.from('groups').select('*, subjects(name), teachers(full_name), enrollments(count)').order('created_at'),
-      supabase.from('subjects').select('*').eq('is_active', true),
-      supabase.from('teachers').select('*').eq('is_active', true)
-    ])
-    setGroups(g.data || [])
-    setSubjects(s.data || [])
-    setTeachers(t.data || [])
+    const [g, s, t] = await Promise.all([getGroups(), getActiveSubjects(), getActiveTeachers()])
+    setGroups(g); setSubjects(s); setTeachers(t)
   }
 
   useEffect(() => { load() }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = {
+    await upsertGroup({
       name: form.name, subject_id: form.subject_id,
       teacher_id: form.teacher_id || null, schedule: form.schedule,
       capacity: Number(form.capacity)
-    }
-    if (editId) await supabase.from('groups').update(payload).eq('id', editId)
-    else await supabase.from('groups').insert(payload)
+    }, editId || undefined)
     setForm({ name: '', subject_id: '', teacher_id: '', schedule: '', capacity: '20' })
     setEditId(null); setShowForm(false); load()
   }
@@ -44,8 +35,8 @@ export default function GroupsPage() {
     setEditId(g.id); setShowForm(true)
   }
 
-  async function toggleActive(g: Group) {
-    await supabase.from('groups').update({ is_active: !g.is_active }).eq('id', g.id)
+  async function handleToggle(g: Group) {
+    await toggleGroupActive(g.id, !g.is_active)
     load()
   }
 
@@ -123,13 +114,12 @@ export default function GroupsPage() {
                     {(g.subjects as any)?.name}
                   </span>
                 </div>
-                <button onClick={() => toggleActive(g)}
+                <button onClick={() => handleToggle(g)}
                   className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${g.is_active ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}>
                   <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${g.is_active ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
                   {g.is_active ? 'Faol' : 'Nofaol'}
                 </button>
               </div>
-
               <div className="space-y-2.5 text-sm text-gray-600 mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">O&apos;qituvchi:</span>
@@ -140,20 +130,16 @@ export default function GroupsPage() {
                   <span className="font-medium text-gray-800">{g.schedule || 'Belgilanmagan'}</span>
                 </div>
               </div>
-
               <div className="mb-4">
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="text-gray-500 flex items-center gap-1"><Users size={12} /> O&apos;quvchilar</span>
                   <span className="font-semibold text-gray-700">{enrolled} / {g.capacity}</span>
                 </div>
                 <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${percent >= 90 ? 'bg-red-500' : percent >= 70 ? 'bg-amber-500' : 'bg-indigo-500'}`}
-                    style={{ width: `${percent}%` }}
-                  />
+                  <div className={`h-full rounded-full transition-all ${percent >= 90 ? 'bg-red-500' : percent >= 70 ? 'bg-amber-500' : 'bg-indigo-500'}`}
+                    style={{ width: `${percent}%` }} />
                 </div>
               </div>
-
               <button onClick={() => startEdit(g)} className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors">
                 <Pencil size={14} /> Tahrirlash
               </button>

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getActiveGroupsList, getGroupStudentsWithAttendance, saveAttendanceRecords } from '@/app/actions/crud'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
 
 const STATUS_CONFIG = {
@@ -16,46 +16,32 @@ export default function AttendancePage() {
   const [students, setStudents] = useState<any[]>([])
   const [attendance, setAttendance] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState(false)
-  const supabase = createClient()
 
-  useEffect(() => {
-    supabase.from('groups').select('*, subjects(name)').eq('is_active', true).then(({ data }) => setGroups(data || []))
-  }, [])
+  useEffect(() => { getActiveGroupsList().then(setGroups) }, [])
 
   useEffect(() => {
     if (!selectedGroup) return
-    loadGroupStudents()
+    loadData()
   }, [selectedGroup, selectedDate])
 
-  async function loadGroupStudents() {
-    const { data: enrolls } = await supabase
-      .from('enrollments')
-      .select('student_id, students(id, full_name)')
-      .eq('group_id', selectedGroup)
-      .eq('is_active', true)
-
-    const { data: existing } = await supabase
-      .from('attendance')
-      .select('student_id, status')
-      .eq('group_id', selectedGroup)
-      .eq('date', selectedDate)
-
-    setStudents(enrolls || [])
+  async function loadData() {
+    const { students: enrolls, attendance: existing } = await getGroupStudentsWithAttendance(selectedGroup, selectedDate)
+    setStudents(enrolls)
     const map: Record<string, string> = {}
-    enrolls?.forEach(e => { map[e.student_id] = 'present' })
-    existing?.forEach(a => { map[a.student_id] = a.status })
+    enrolls.forEach((e: any) => { map[e.student_id] = 'present' })
+    existing.forEach((a: any) => { map[a.student_id] = a.status })
     setAttendance(map)
     setSaved(false)
   }
 
-  async function saveAttendance() {
+  async function handleSave() {
     const records = students.map(e => ({
       student_id: e.student_id,
       group_id: selectedGroup,
       date: selectedDate,
       status: attendance[e.student_id] || 'present'
     }))
-    await supabase.from('attendance').upsert(records, { onConflict: 'student_id,group_id,date' })
+    await saveAttendanceRecords(records)
     setSaved(true)
   }
 
@@ -79,7 +65,6 @@ export default function AttendancePage() {
 
       {selectedGroup && students.length > 0 && (
         <>
-          {/* Status Summary Cards */}
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
               <div key={key} className={`flex items-center gap-3 px-5 py-4 rounded-xl ${cfg.bg} border ${cfg.border}`}>
@@ -119,14 +104,10 @@ export default function AttendancePage() {
                     </td>
                     {Object.keys(STATUS_CONFIG).map(status => (
                       <td key={status} className="px-5 py-4 text-center">
-                        <input
-                          type="radio"
-                          name={`status-${e.student_id}`}
-                          value={status}
+                        <input type="radio" name={`status-${e.student_id}`} value={status}
                           checked={attendance[e.student_id] === status}
                           onChange={() => { setAttendance({ ...attendance, [e.student_id]: status }); setSaved(false) }}
-                          className="w-4 h-4 cursor-pointer accent-blue-600"
-                        />
+                          className="w-4 h-4 cursor-pointer accent-blue-600" />
                       </td>
                     ))}
                   </tr>
@@ -135,12 +116,8 @@ export default function AttendancePage() {
             </table>
           </div>
 
-          <button onClick={saveAttendance}
-            className={`px-6 py-2.5 rounded-xl font-medium transition-all shadow-md ${
-              saved
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}>
+          <button onClick={handleSave}
+            className={`px-6 py-2.5 rounded-xl font-medium transition-all shadow-md ${saved ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
             {saved ? '✓ Saqlandi' : 'Davomatni saqlash'}
           </button>
         </>

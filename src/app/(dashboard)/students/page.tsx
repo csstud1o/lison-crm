@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getStudents, getActiveGroups, getActiveSubjects, upsertStudent, enrollStudent, getStudentEnrollments, removeEnrollment } from '@/app/actions/crud'
 import { Student, Group, Subject } from '@/lib/types'
 import { Plus, Pencil, UserPlus, Eye, Search } from 'lucide-react'
 
@@ -15,51 +15,25 @@ export default function StudentsPage() {
   const [selectedGroupId, setSelectedGroupId] = useState('')
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('')
   const [enrollments, setEnrollments] = useState<any[]>([])
-
-  const [form, setForm] = useState({
-    full_name: '', phone: '', parent_phone: '', birth_date: '', address: '',
-    group_id: ''
-  })
-  const supabase = createClient()
+  const [form, setForm] = useState({ full_name: '', phone: '', parent_phone: '', birth_date: '', address: '', group_id: '' })
 
   async function load() {
-    const [s, g, sub] = await Promise.all([
-      supabase.from('students').select('*').order('created_at', { ascending: false }),
-      supabase.from('groups').select('*, subjects(name)').eq('is_active', true),
-      supabase.from('subjects').select('*').eq('is_active', true)
-    ])
-    setStudents(s.data || [])
-    setGroups(g.data || [])
-    setSubjects(sub.data || [])
+    const [s, g, sub] = await Promise.all([getStudents(), getActiveGroups(), getActiveSubjects()])
+    setStudents(s); setGroups(g); setSubjects(sub)
   }
 
-  async function loadEnrollments(studentId: string) {
-    const { data } = await supabase
-      .from('enrollments')
-      .select('*, groups(name, subjects(name))')
-      .eq('student_id', studentId)
-      .eq('is_active', true)
-    setEnrollments(data || [])
+  async function loadEnrolls(studentId: string) {
+    setEnrollments(await getStudentEnrollments(studentId))
   }
 
   useEffect(() => { load() }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const payload = {
-      full_name: form.full_name, phone: form.phone || null,
-      parent_phone: form.parent_phone || null,
-      birth_date: form.birth_date || null, address: form.address || null
-    }
-    let studentId = editId
-    if (editId) {
-      await supabase.from('students').update(payload).eq('id', editId)
-    } else {
-      const { data } = await supabase.from('students').insert(payload).select().single()
-      studentId = data?.id
-    }
+    const payload = { full_name: form.full_name, phone: form.phone || null, parent_phone: form.parent_phone || null, birth_date: form.birth_date || null, address: form.address || null }
+    const studentId = await upsertStudent(payload, editId || undefined)
     if (!editId && form.group_id && studentId) {
-      await supabase.from('enrollments').upsert({ student_id: studentId, group_id: form.group_id, is_active: true })
+      await enrollStudent(studentId, form.group_id)
     }
     setForm({ full_name: '', phone: '', parent_phone: '', birth_date: '', address: '', group_id: '' })
     setEditId(null); setShowForm(false); load()
@@ -67,14 +41,14 @@ export default function StudentsPage() {
 
   async function handleEnroll(student: Student) {
     if (!selectedGroupId) return
-    await supabase.from('enrollments').upsert({ student_id: student.id, group_id: selectedGroupId, is_active: true })
-    await loadEnrollments(student.id)
+    await enrollStudent(student.id, selectedGroupId)
+    await loadEnrolls(student.id)
     setSelectedGroupId('')
   }
 
-  async function removeEnrollment(enrollId: string, studentId: string) {
-    await supabase.from('enrollments').update({ is_active: false, left_at: new Date().toISOString() }).eq('id', enrollId)
-    await loadEnrollments(studentId)
+  async function handleRemoveEnrollment(enrollId: string, studentId: string) {
+    await removeEnrollment(enrollId)
+    await loadEnrolls(studentId)
   }
 
   function startEdit(s: Student) {
@@ -82,15 +56,10 @@ export default function StudentsPage() {
     setEditId(s.id); setShowForm(true)
   }
 
-  const filteredStudents = students.filter(s => {
-    const matchSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      (s.phone || '').includes(search)
-    return matchSearch
-  })
-
-  const filteredGroups = selectedSubjectFilter
-    ? groups.filter(g => g.subject_id === selectedSubjectFilter)
-    : groups
+  const filteredStudents = students.filter(s =>
+    s.full_name.toLowerCase().includes(search.toLowerCase()) || (s.phone || '').includes(search)
+  )
+  const filteredGroups = selectedSubjectFilter ? groups.filter(g => g.subject_id === selectedSubjectFilter) : groups
 
   return (
     <div className="space-y-6">
@@ -104,15 +73,10 @@ export default function StudentsPage() {
 
       <div className="relative">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Ism yoki telefon bo'yicha qidirish..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white shadow-sm transition-all"
-        />
+        <input placeholder="Ism yoki telefon bo'yicha qidirish..." value={search} onChange={e => setSearch(e.target.value)}
+          className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white shadow-sm transition-all" />
       </div>
 
-      {/* Add/Edit Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 w-full max-w-lg shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in">
@@ -173,7 +137,6 @@ export default function StudentsPage() {
         </div>
       )}
 
-      {/* Enroll Modal */}
       {showEnroll && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl space-y-4">
@@ -187,7 +150,7 @@ export default function StudentsPage() {
               {enrollments.map(e => (
                 <div key={e.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
                   <span className="text-sm font-medium text-gray-700">{e.groups?.name} - {e.groups?.subjects?.name}</span>
-                  <button onClick={() => removeEnrollment(e.id, showEnroll.id)}
+                  <button onClick={() => handleRemoveEnrollment(e.id, showEnroll!.id)}
                     className="text-red-500 text-xs font-medium hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-all">Chiqarish</button>
                 </div>
               ))}
@@ -234,7 +197,7 @@ export default function StudentsPage() {
                 <td className="px-5 py-4 text-gray-400 text-xs">{new Date(s.created_at).toLocaleDateString('uz-UZ')}</td>
                 <td className="px-5 py-4">
                   <div className="flex gap-1">
-                    <button onClick={() => { setShowEnroll(s); loadEnrollments(s.id) }}
+                    <button onClick={() => { setShowEnroll(s); loadEnrolls(s.id) }}
                       className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all" title="Guruhlar">
                       <Eye size={16} />
                     </button>

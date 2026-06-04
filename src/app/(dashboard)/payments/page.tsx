@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { getPayments, getAllStudents, getStudentActiveEnrollments, createPayment } from '@/app/actions/crud'
 import { Plus, Search, CreditCard } from 'lucide-react'
 
 const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
@@ -10,7 +10,6 @@ const METHOD_LABELS: Record<string, string> = { cash: 'Naqd', card: 'Karta', tra
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<any[]>([])
   const [students, setStudents] = useState<any[]>([])
-  const [groups, setGroups] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [search, setSearch] = useState('')
   const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1)
@@ -24,37 +23,21 @@ export default function PaymentsPage() {
     month: now.getMonth() + 1, year: now.getFullYear(),
     payment_method: 'cash', note: ''
   })
-  const supabase = createClient()
 
   async function load() {
-    const { data } = await supabase
-      .from('payments')
-      .select('*, students(full_name, phone), groups(name, subjects(name))')
-      .eq('month', filterMonth).eq('year', filterYear)
-      .order('created_at', { ascending: false })
-    setPayments(data || [])
-    const [s, g] = await Promise.all([
-      supabase.from('students').select('id, full_name, phone').order('full_name'),
-      supabase.from('groups').select('id, name, subject_id, subjects(name), monthly_fee:subjects(monthly_fee)').eq('is_active', true)
-    ])
-    setStudents(s.data || [])
-    setGroups(g.data || [])
+    const [p, s] = await Promise.all([getPayments(filterMonth, filterYear), getAllStudents()])
+    setPayments(p); setStudents(s)
   }
 
   useEffect(() => { load() }, [filterMonth, filterYear])
 
-  async function loadStudentEnrollments(studentId: string) {
-    const { data } = await supabase
-      .from('enrollments')
-      .select('group_id, groups(id, name, subjects(name, monthly_fee))')
-      .eq('student_id', studentId)
-      .eq('is_active', true)
-    setStudentEnrollments(data || [])
+  async function loadStudentEnrolls(studentId: string) {
+    setStudentEnrollments(await getStudentActiveEnrollments(studentId))
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await supabase.from('payments').insert({
+    await createPayment({
       student_id: form.student_id, group_id: form.group_id,
       amount: Number(form.amount), payment_date: form.payment_date,
       month: form.month, year: form.year,
@@ -67,8 +50,7 @@ export default function PaymentsPage() {
   }
 
   const filtered = payments.filter(p =>
-    p.students?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.students?.phone?.includes(search)
+    p.students?.full_name?.toLowerCase().includes(search.toLowerCase()) || p.students?.phone?.includes(search)
   )
   const total = filtered.reduce((sum, p) => sum + Number(p.amount), 0)
 
@@ -82,7 +64,6 @@ export default function PaymentsPage() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -97,7 +78,6 @@ export default function PaymentsPage() {
         </select>
       </div>
 
-      {/* Summary Card */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl px-6 py-5 flex justify-between items-center shadow-md">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
@@ -108,7 +88,6 @@ export default function PaymentsPage() {
         <span className="text-white font-bold text-xl">{total.toLocaleString()} so&apos;m</span>
       </div>
 
-      {/* Add Payment Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl space-y-4">
@@ -117,7 +96,7 @@ export default function PaymentsPage() {
               <div>
                 <label className="text-xs font-medium text-gray-500 mb-1 block">O&apos;quvchi *</label>
                 <select className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all" value={form.student_id}
-                  onChange={e => { setForm({ ...form, student_id: e.target.value, group_id: '', amount: '' }); if (e.target.value) loadStudentEnrollments(e.target.value) }} required>
+                  onChange={e => { setForm({ ...form, student_id: e.target.value, group_id: '', amount: '' }); if (e.target.value) loadStudentEnrolls(e.target.value) }} required>
                   <option value="">O&apos;quvchi tanlang</option>
                   {students.map(s => <option key={s.id} value={s.id}>{s.full_name} {s.phone ? `(${s.phone})` : ''}</option>)}
                 </select>
@@ -209,8 +188,7 @@ export default function PaymentsPage() {
                 <td className="px-5 py-4">
                   <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
                     p.payment_method === 'cash' ? 'bg-green-50 text-green-700' :
-                    p.payment_method === 'card' ? 'bg-blue-50 text-blue-700' :
-                    'bg-purple-50 text-purple-700'
+                    p.payment_method === 'card' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
                   }`}>{METHOD_LABELS[p.payment_method] || p.payment_method}</span>
                 </td>
                 <td className="px-5 py-4 text-gray-400 text-xs">{new Date(p.payment_date).toLocaleDateString('uz-UZ')}</td>
