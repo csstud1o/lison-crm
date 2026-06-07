@@ -10,10 +10,11 @@ export default function TeachersPage() {
   const [form, setForm] = useState({ full_name: '', phone: '', subject_id: '' })
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   async function load() {
     const [t, s] = await Promise.all([getTeachers(), getActiveSubjects()])
-    setTeachers(t); setSubjects(s)
+    setTeachers(t); setSubjects(s); setLoading(false)
   }
 
   useEffect(() => { load() }, [])
@@ -51,6 +52,12 @@ export default function TeachersPage() {
 
   return (
     <div>
+      {loading && (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+        </div>
+      )}
+      {!loading && (
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-purple-50 rounded-xl">
@@ -155,6 +162,7 @@ export default function TeachersPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }

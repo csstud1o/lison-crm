@@ -9,8 +9,9 @@ export default function SubjectsPage() {
   const [form, setForm] = useState({ name: '', description: '', monthly_fee: '' })
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  async function load() { setSubjects(await getSubjects()) }
+  async function load() { setSubjects(await getSubjects()); setLoading(false) }
   useEffect(() => { load() }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,6 +41,11 @@ export default function SubjectsPage() {
 
   return (
     <div>
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      ) : (
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-blue-50 rounded-xl">
@@ -128,6 +134,7 @@ export default function SubjectsPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }

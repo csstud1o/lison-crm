@@ -16,8 +16,9 @@ export default function AttendancePage() {
   const [students, setStudents] = useState<any[]>([])
   const [attendance, setAttendance] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => { getActiveGroupsList().then(setGroups) }, [])
+  useEffect(() => { getActiveGroupsList().then(g => { setGroups(g); setLoading(false) }) }, [])
 
   useEffect(() => {
     if (!selectedGroup) return
@@ -54,7 +55,11 @@ export default function AttendancePage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Davomat</h1>
-
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      ) : (
       <div className="flex flex-wrap gap-3">
         <select className="border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm transition-all min-w-[220px]" value={selectedGroup} onChange={e => setSelectedGroup(e.target.value)}>
           <option value="">Guruh tanlang</option>
@@ -127,6 +132,7 @@ export default function AttendancePage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center text-gray-400">
           Bu guruhda o&apos;quvchilar yo&apos;q
         </div>
+      )}
       )}
     </div>
   )

@@ -11,10 +11,11 @@ export default function GroupsPage() {
   const [form, setForm] = useState({ name: '', subject_id: '', teacher_id: '', schedule: '', capacity: '20' })
   const [editId, setEditId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   async function load() {
     const [g, s, t] = await Promise.all([getGroups(), getActiveSubjects(), getActiveTeachers()])
-    setGroups(g); setSubjects(s); setTeachers(t)
+    setGroups(g); setSubjects(s); setTeachers(t); setLoading(false)
   }
 
   useEffect(() => { load() }, [])
@@ -48,6 +49,11 @@ export default function GroupsPage() {
 
   return (
     <div>
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+        </div>
+      ) : (
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-50 rounded-xl">
@@ -164,6 +170,7 @@ export default function GroupsPage() {
           <Users size={48} className="mx-auto mb-3 opacity-50" />
           <p>Hali guruhlar yo&apos;q</p>
         </div>
+      )}
       )}
     </div>
   )

@@ -15,6 +15,7 @@ export default function PaymentsPage() {
   const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1)
   const [filterYear, setFilterYear] = useState(new Date().getFullYear())
   const [studentEnrollments, setStudentEnrollments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   const now = new Date()
   const [form, setForm] = useState({
@@ -26,7 +27,7 @@ export default function PaymentsPage() {
 
   async function load() {
     const [p, s] = await Promise.all([getPayments(filterMonth, filterYear), getAllStudents()])
-    setPayments(p); setStudents(s)
+    setPayments(p); setStudents(s); setLoading(false)
   }
 
   useEffect(() => { load() }, [filterMonth, filterYear])
@@ -56,6 +57,11 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-6">
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      ) : <>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">To&apos;lovlar</h1>
         <button onClick={() => setShowForm(true)}
@@ -198,6 +204,7 @@ export default function PaymentsPage() {
         </table>
         {filtered.length === 0 && <p className="text-center text-gray-400 py-12">To&apos;lovlar topilmadi</p>}
       </div>
+      </>}
     </div>
   )
 }

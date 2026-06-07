@@ -16,10 +16,11 @@ export default function StudentsPage() {
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('')
   const [enrollments, setEnrollments] = useState<any[]>([])
   const [form, setForm] = useState({ full_name: '', phone: '', parent_phone: '', birth_date: '', address: '', group_id: '' })
+  const [loading, setLoading] = useState(true)
 
   async function load() {
     const [s, g, sub] = await Promise.all([getStudents(), getActiveGroups(), getActiveSubjects()])
-    setStudents(s); setGroups(g); setSubjects(sub)
+    setStudents(s); setGroups(g); setSubjects(sub); setLoading(false)
   }
 
   async function loadEnrolls(studentId: string) {
@@ -71,6 +72,12 @@ export default function StudentsPage() {
 
   return (
     <div className="space-y-6">
+      {loading && (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        </div>
+      )}
+      {!loading && <>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">O&apos;quvchilar</h1>
         <button onClick={() => { setShowForm(true); setEditId(null); setForm({ full_name: '', phone: '', parent_phone: '', birth_date: '', address: '', group_id: '' }) }}
@@ -225,6 +232,7 @@ export default function StudentsPage() {
           <p className="text-center text-gray-400 py-12">O&apos;quvchilar topilmadi</p>
         )}
       </div>
+      </>}
     </div>
   )
 }
