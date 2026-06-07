@@ -27,6 +27,10 @@ export async function toggleSubjectActive(id: string, is_active: boolean) {
   const { error } = await getSupabase().from('subjects').update({ is_active }).eq('id', id)
   return { error: error ? { message: error.message } : null }
 }
+export async function deleteSubject(id: string) {
+  const { error } = await getSupabase().from('subjects').delete().eq('id', id)
+  return { error: error ? { message: error.message } : null }
+}
 
 // === TEACHERS ===
 export async function getTeachers() {
@@ -47,6 +51,10 @@ export async function upsertTeacher(payload: { full_name: string; phone: string 
 }
 export async function toggleTeacherActive(id: string, is_active: boolean) {
   const { error } = await getSupabase().from('teachers').update({ is_active }).eq('id', id)
+  return { error: error ? { message: error.message } : null }
+}
+export async function deleteTeacher(id: string) {
+  const { error } = await getSupabase().from('teachers').delete().eq('id', id)
   return { error: error ? { message: error.message } : null }
 }
 
@@ -71,6 +79,10 @@ export async function toggleGroupActive(id: string, is_active: boolean) {
   const { error } = await getSupabase().from('groups').update({ is_active }).eq('id', id)
   return { error: error ? { message: error.message } : null }
 }
+export async function deleteGroup(id: string) {
+  const { error } = await getSupabase().from('groups').delete().eq('id', id)
+  return { error: error ? { message: error.message } : null }
+}
 
 // === STUDENTS ===
 export async function getStudents() {
@@ -88,6 +100,10 @@ export async function upsertStudent(payload: { full_name: string; phone: string 
   }
   const { data } = await getSupabase().from('students').insert(payload).select().single()
   return data?.id
+}
+export async function deleteStudent(id: string) {
+  const { error } = await getSupabase().from('students').delete().eq('id', id)
+  return { error: error ? { message: error.message } : null }
 }
 export async function enrollStudent(student_id: string, group_id: string) {
   const { error } = await getSupabase().from('enrollments').upsert(

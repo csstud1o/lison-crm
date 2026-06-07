@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { getTeachers, getActiveSubjects, upsertTeacher, toggleTeacherActive } from '@/app/actions/crud'
+import { getTeachers, getActiveSubjects, upsertTeacher, toggleTeacherActive, deleteTeacher } from '@/app/actions/crud'
 import { Teacher, Subject } from '@/lib/types'
-import { Plus, Pencil, GraduationCap } from 'lucide-react'
+import { Plus, Pencil, GraduationCap, Trash2 } from 'lucide-react'
 
 export default function TeachersPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([])
@@ -32,6 +32,12 @@ export default function TeachersPage() {
 
   async function handleToggle(t: Teacher) {
     await toggleTeacherActive(t.id, !t.is_active)
+    load()
+  }
+
+  async function handleDelete(t: Teacher) {
+    if (!confirm(`"${t.full_name}"ni o'chirishni tasdiqlaysizmi?`)) return
+    await deleteTeacher(t.id)
     load()
   }
 
@@ -129,9 +135,14 @@ export default function TeachersPage() {
                   </button>
                 </td>
                 <td className="px-5 py-4">
-                  <button onClick={() => startEdit(t)} className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
-                    <Pencil size={15} />
-                  </button>
+                  <div className="flex gap-1">
+                    <button onClick={() => startEdit(t)} className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                      <Pencil size={15} />
+                    </button>
+                    <button onClick={() => handleDelete(t)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

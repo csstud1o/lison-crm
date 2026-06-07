@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { getGroups, getActiveSubjects, getActiveTeachers, upsertGroup, toggleGroupActive } from '@/app/actions/crud'
+import { getGroups, getActiveSubjects, getActiveTeachers, upsertGroup, toggleGroupActive, deleteGroup } from '@/app/actions/crud'
 import { Group, Subject, Teacher } from '@/lib/types'
-import { Plus, Pencil, Users } from 'lucide-react'
+import { Plus, Pencil, Users, Trash2 } from 'lucide-react'
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([])
@@ -37,6 +37,12 @@ export default function GroupsPage() {
 
   async function handleToggle(g: Group) {
     await toggleGroupActive(g.id, !g.is_active)
+    load()
+  }
+
+  async function handleDelete(g: Group) {
+    if (!confirm(`"${g.name}" guruhni o'chirishni tasdiqlaysizmi?`)) return
+    await deleteGroup(g.id)
     load()
   }
 
@@ -140,9 +146,14 @@ export default function GroupsPage() {
                     style={{ width: `${percent}%` }} />
                 </div>
               </div>
-              <button onClick={() => startEdit(g)} className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors">
-                <Pencil size={14} /> Tahrirlash
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => startEdit(g)} className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors">
+                  <Pencil size={14} /> Tahrirlash
+                </button>
+                <button onClick={() => handleDelete(g)} className="flex items-center gap-1.5 text-red-400 hover:text-red-600 text-sm font-medium transition-colors ml-2">
+                  <Trash2 size={14} /> O&apos;chirish
+                </button>
+              </div>
             </div>
           )
         })}

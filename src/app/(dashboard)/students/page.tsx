@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { getStudents, getActiveGroups, getActiveSubjects, upsertStudent, enrollStudent, getStudentEnrollments, removeEnrollment } from '@/app/actions/crud'
+import { getStudents, getActiveGroups, getActiveSubjects, upsertStudent, enrollStudent, getStudentEnrollments, removeEnrollment, deleteStudent } from '@/app/actions/crud'
 import { Student, Group, Subject } from '@/lib/types'
-import { Plus, Pencil, UserPlus, Eye, Search } from 'lucide-react'
+import { Plus, Pencil, UserPlus, Eye, Search, Trash2 } from 'lucide-react'
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([])
@@ -56,6 +56,12 @@ export default function StudentsPage() {
   function startEdit(s: Student) {
     setForm({ full_name: s.full_name, phone: s.phone || '', parent_phone: s.parent_phone || '', birth_date: s.birth_date || '', address: s.address || '', group_id: '' })
     setEditId(s.id); setShowForm(true)
+  }
+
+  async function handleDelete(s: Student) {
+    if (!confirm(`"${s.full_name}"ni o'chirishni tasdiqlaysizmi?`)) return
+    await deleteStudent(s.id)
+    load()
   }
 
   const filteredStudents = students.filter(s =>
@@ -205,6 +211,9 @@ export default function StudentsPage() {
                     </button>
                     <button onClick={() => startEdit(s)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Tahrirlash">
                       <Pencil size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(s)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="O'chirish">
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </td>

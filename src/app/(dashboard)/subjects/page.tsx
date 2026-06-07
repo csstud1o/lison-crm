@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { getSubjects, upsertSubject, toggleSubjectActive } from '@/app/actions/crud'
+import { getSubjects, upsertSubject, toggleSubjectActive, deleteSubject } from '@/app/actions/crud'
 import { Subject } from '@/lib/types'
-import { Plus, Pencil, BookOpen } from 'lucide-react'
+import { Plus, Pencil, BookOpen, Trash2 } from 'lucide-react'
 
 export default function SubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([])
@@ -29,6 +29,12 @@ export default function SubjectsPage() {
 
   async function handleToggle(s: Subject) {
     await toggleSubjectActive(s.id, !s.is_active)
+    load()
+  }
+
+  async function handleDelete(s: Subject) {
+    if (!confirm(`"${s.name}" fanni o'chirishni tasdiqlaysizmi?`)) return
+    await deleteSubject(s.id)
     load()
   }
 
@@ -102,9 +108,14 @@ export default function SubjectsPage() {
                   </button>
                 </td>
                 <td className="px-5 py-4">
-                  <button onClick={() => startEdit(s)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <Pencil size={15} />
-                  </button>
+                  <div className="flex gap-1">
+                    <button onClick={() => startEdit(s)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                      <Pencil size={15} />
+                    </button>
+                    <button onClick={() => handleDelete(s)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
