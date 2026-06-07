@@ -77,7 +77,18 @@ export default function Sidebar({ role, userName }: { role: string; userName: st
         ))}
       </nav>
 
-      <div className="p-3 border-t border-white/10">
+      <div className="p-3 border-t border-white/10 space-y-1">
+        <a
+          href="https://t.me/wasadmin"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="nav-glass flex items-center gap-3 text-white/50 hover:text-sky-400 text-sm w-full px-3 py-2.5 rounded-xl"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 13.667l-2.95-.924c-.64-.203-.658-.64.135-.954l11.57-4.461c.537-.194 1.006.131.97.893z"/>
+          </svg>
+          Qo&apos;llab-quvvatlash
+        </a>
         <form action={logout}>
           <button className="nav-glass flex items-center gap-3 text-white/50 hover:text-red-400 text-sm w-full px-3 py-2.5 rounded-xl">
             <LogOut size={18} />

@@ -81,7 +81,6 @@ export default function LoginPage() {
                 <Mail size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
                   type="text"
-                  placeholder="Login (admin / lison)"
                   value={login}
                   onChange={e => setLogin(e.target.value)}
                   required
@@ -92,7 +91,6 @@ export default function LoginPage() {
                 <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
                   type="password"
-                  placeholder="Parol"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
