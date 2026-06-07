@@ -54,6 +54,7 @@ export default function GroupsPage() {
           <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         </div>
       ) : (
+      <>
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-50 rounded-xl">
@@ -171,6 +172,7 @@ export default function GroupsPage() {
           <p>Hali guruhlar yo&apos;q</p>
         </div>
       )}
+      </>
       )}
     </div>
   )

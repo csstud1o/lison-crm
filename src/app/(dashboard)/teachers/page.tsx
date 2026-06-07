@@ -58,6 +58,7 @@ export default function TeachersPage() {
         </div>
       )}
       {!loading && (
+      <>
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-purple-50 rounded-xl">
@@ -162,6 +163,7 @@ export default function TeachersPage() {
           </div>
         )}
       </div>
+      </>
       )}
     </div>
   )

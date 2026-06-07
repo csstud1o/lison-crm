@@ -60,79 +60,81 @@ export default function AttendancePage() {
           <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         </div>
       ) : (
-      <div className="flex flex-wrap gap-3">
-        <select className="border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm transition-all min-w-[220px]" value={selectedGroup} onChange={e => setSelectedGroup(e.target.value)}>
-          <option value="">Guruh tanlang</option>
-          {groups.map(g => <option key={g.id} value={g.id}>{g.name} - {g.subjects?.name}</option>)}
-        </select>
-        <input type="date" className="border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm transition-all" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
-      </div>
-
-      {selectedGroup && students.length > 0 && (
         <>
-          <div className="grid grid-cols-3 gap-4">
-            {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-              <div key={key} className={`flex items-center gap-3 px-5 py-4 rounded-xl ${cfg.bg} border ${cfg.border}`}>
-                <cfg.icon size={22} className={cfg.color} />
-                <div>
-                  <p className={`text-2xl font-bold ${cfg.color}`}>{counts[key as keyof typeof counts]}</p>
-                  <p className="text-xs text-gray-500 font-medium">{cfg.label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-3">
+          <select className="border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm transition-all min-w-[220px]" value={selectedGroup} onChange={e => setSelectedGroup(e.target.value)}>
+            <option value="">Guruh tanlang</option>
+            {groups.map(g => <option key={g.id} value={g.id}>{g.name} - {g.subjects?.name}</option>)}
+          </select>
+          <input type="date" className="border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm transition-all" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
+        </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50/80 border-b border-gray-100">
-                <tr>
-                  <th className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">O&apos;quvchi</th>
-                  {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                    <th key={key} className="px-5 py-4 text-center">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${cfg.color}`}>
-                        <cfg.icon size={14} /> {cfg.label}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {students.map(e => (
-                  <tr key={e.student_id} className="hover:bg-blue-50/30 transition-all">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
-                          {e.students?.full_name?.charAt(0)?.toUpperCase()}
-                        </div>
-                        <span className="font-medium text-gray-800">{e.students?.full_name}</span>
-                      </div>
-                    </td>
-                    {Object.keys(STATUS_CONFIG).map(status => (
-                      <td key={status} className="px-5 py-4 text-center">
-                        <input type="radio" name={`status-${e.student_id}`} value={status}
-                          checked={attendance[e.student_id] === status}
-                          onChange={() => { setAttendance({ ...attendance, [e.student_id]: status }); setSaved(false) }}
-                          className="w-4 h-4 cursor-pointer accent-blue-600" />
-                      </td>
+        {selectedGroup && students.length > 0 && (
+          <>
+            <div className="grid grid-cols-3 gap-4">
+              {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                <div key={key} className={`flex items-center gap-3 px-5 py-4 rounded-xl ${cfg.bg} border ${cfg.border}`}>
+                  <cfg.icon size={22} className={cfg.color} />
+                  <div>
+                    <p className={`text-2xl font-bold ${cfg.color}`}>{counts[key as keyof typeof counts]}</p>
+                    <p className="text-xs text-gray-500 font-medium">{cfg.label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50/80 border-b border-gray-100">
+                  <tr>
+                    <th className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">O&apos;quvchi</th>
+                    {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                      <th key={key} className="px-5 py-4 text-center">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${cfg.color}`}>
+                          <cfg.icon size={14} /> {cfg.label}
+                        </span>
+                      </th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {students.map(e => (
+                    <tr key={e.student_id} className="hover:bg-blue-50/30 transition-all">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                            {e.students?.full_name?.charAt(0)?.toUpperCase()}
+                          </div>
+                          <span className="font-medium text-gray-800">{e.students?.full_name}</span>
+                        </div>
+                      </td>
+                      {Object.keys(STATUS_CONFIG).map(status => (
+                        <td key={status} className="px-5 py-4 text-center">
+                          <input type="radio" name={`status-${e.student_id}`} value={status}
+                            checked={attendance[e.student_id] === status}
+                            onChange={() => { setAttendance({ ...attendance, [e.student_id]: status }); setSaved(false) }}
+                            className="w-4 h-4 cursor-pointer accent-blue-600" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <button onClick={handleSave}
+              className={`px-6 py-2.5 rounded-xl font-medium transition-all shadow-md ${saved ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
+              {saved ? '✓ Saqlandi' : 'Davomatni saqlash'}
+            </button>
+          </>
+        )}
+
+        {selectedGroup && students.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center text-gray-400">
+            Bu guruhda o&apos;quvchilar yo&apos;q
           </div>
-
-          <button onClick={handleSave}
-            className={`px-6 py-2.5 rounded-xl font-medium transition-all shadow-md ${saved ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
-            {saved ? '✓ Saqlandi' : 'Davomatni saqlash'}
-          </button>
+        )}
         </>
-      )}
-
-      {selectedGroup && students.length === 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center text-gray-400">
-          Bu guruhda o&apos;quvchilar yo&apos;q
-        </div>
-      )}
       )}
     </div>
   )

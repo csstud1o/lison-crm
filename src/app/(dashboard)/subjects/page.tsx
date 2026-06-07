@@ -46,6 +46,7 @@ export default function SubjectsPage() {
           <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
         </div>
       ) : (
+      <>
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-blue-50 rounded-xl">
@@ -134,6 +135,7 @@ export default function SubjectsPage() {
           </div>
         )}
       </div>
+      </>
       )}
     </div>
   )
