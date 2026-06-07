@@ -41,9 +41,11 @@ export default function StudentsPage() {
 
   async function handleEnroll(student: Student) {
     if (!selectedGroupId) return
-    await enrollStudent(student.id, selectedGroupId)
+    const { error } = await enrollStudent(student.id, selectedGroupId) as any
+    if (error) { alert('Xato: ' + error.message); return }
     await loadEnrolls(student.id)
     setSelectedGroupId('')
+    load()
   }
 
   async function handleRemoveEnrollment(enrollId: string, studentId: string) {
